@@ -18,7 +18,5 @@ fn floatbungler(m: &Bound<'_, PyModule>) -> PyResult<()> {
         .getattr("modules")?
         .set_item("floatbungler.gorilla", gorilla)?;    
 
-    println!("ok");
-
     Ok(())
 }

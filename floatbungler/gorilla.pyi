@@ -1,0 +1,6 @@
+def encode(input: list[float]) -> bytes:
+    ...
+
+
+def decode(input: bytes, count: int) -> list[float]:
+    ...
