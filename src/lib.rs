@@ -3,6 +3,7 @@ use pyo3::prelude::*;
 mod bits;
 mod bit_utils;
 mod gorilla;
+mod chimp;
 mod chimp128;
 
 // TODO(miikka) Convert the module declaration to use declarative modules
@@ -21,6 +22,16 @@ fn floatbungler(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.py().import("sys")?
         .getattr("modules")?
         .set_item("floatbungler.gorilla", gorilla)?;
+
+    let chimp = PyModule::new(m.py(), "chimp")?;
+    chimp.add_function(wrap_pyfunction!(chimp::encode, &chimp)?)?;
+    chimp.add_function(wrap_pyfunction!(chimp::decode, &chimp)?)?;
+    m.add_submodule(&chimp)?;
+
+    // Workaround to make `from floatbungler import chimp` work
+    m.py().import("sys")?
+        .getattr("modules")?
+        .set_item("floatbungler.chimp", chimp)?;
 
     let chimp128 = PyModule::new(m.py(), "chimp128")?;
     chimp128.add_function(wrap_pyfunction!(chimp128::encode, &chimp128)?)?;
