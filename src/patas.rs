@@ -86,7 +86,6 @@ fn decode_plain(input: &[u8], count: usize) -> Vec<f64> {
         return result;
     }
 
-    // TODO(miikka) How to use Bytes-like interface without copying the data?
     let mut buf = Bytes::copy_from_slice(input);
 
     let first = buf.get_f64();

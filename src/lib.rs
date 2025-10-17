@@ -7,8 +7,21 @@ mod chimp;
 mod chimp128;
 mod patas;
 
-// TODO(miikka) Convert the module declaration to use declarative modules
-// https://pyo3.rs/v0.26.0/module.html?highlight=declarative#declarative-modules
+/// Workaround to make `from floatbungler import <submodule>` work
+/// See https://github.com/PyO3/pyo3/issues/759 for background
+fn register_submodule(
+    parent: &Bound<'_, PyModule>,
+    submodule: &Bound<'_, PyModule>,
+    name: &str,
+) -> PyResult<()> {
+    parent.add_submodule(submodule)?;
+    parent
+        .py()
+        .import("sys")?
+        .getattr("modules")?
+        .set_item(format!("floatbungler.{}", name), submodule)?;
+    Ok(())
+}
 
 /// Compression algorithms for floating-point data
 #[pymodule]
@@ -16,43 +29,22 @@ fn floatbungler(m: &Bound<'_, PyModule>) -> PyResult<()> {
     let gorilla = PyModule::new(m.py(), "gorilla")?;
     gorilla.add_function(wrap_pyfunction!(gorilla::encode, &gorilla)?)?;
     gorilla.add_function(wrap_pyfunction!(gorilla::decode, &gorilla)?)?;
-    m.add_submodule(&gorilla)?;
-
-    // Workaround to make `from floatbungler import gorilla` work
-    // See https://github.com/PyO3/pyo3/issues/759 for background
-    m.py().import("sys")?
-        .getattr("modules")?
-        .set_item("floatbungler.gorilla", gorilla)?;
+    register_submodule(m, &gorilla, "gorilla")?;
 
     let chimp = PyModule::new(m.py(), "chimp")?;
     chimp.add_function(wrap_pyfunction!(chimp::encode, &chimp)?)?;
     chimp.add_function(wrap_pyfunction!(chimp::decode, &chimp)?)?;
-    m.add_submodule(&chimp)?;
-
-    // Workaround to make `from floatbungler import chimp` work
-    m.py().import("sys")?
-        .getattr("modules")?
-        .set_item("floatbungler.chimp", chimp)?;
+    register_submodule(m, &chimp, "chimp")?;
 
     let chimp128 = PyModule::new(m.py(), "chimp128")?;
     chimp128.add_function(wrap_pyfunction!(chimp128::encode, &chimp128)?)?;
     chimp128.add_function(wrap_pyfunction!(chimp128::decode, &chimp128)?)?;
-    m.add_submodule(&chimp128)?;
-
-    // Workaround to make `from floatbungler import chimp128` work
-    m.py().import("sys")?
-        .getattr("modules")?
-        .set_item("floatbungler.chimp128", chimp128)?;
+    register_submodule(m, &chimp128, "chimp128")?;
 
     let patas = PyModule::new(m.py(), "patas")?;
     patas.add_function(wrap_pyfunction!(patas::encode, &patas)?)?;
     patas.add_function(wrap_pyfunction!(patas::decode, &patas)?)?;
-    m.add_submodule(&patas)?;
-
-    // Workaround to make `from floatbungler import patas` work
-    m.py().import("sys")?
-        .getattr("modules")?
-        .set_item("floatbungler.patas", patas)?;
+    register_submodule(m, &patas, "patas")?;
 
     Ok(())
 }
