@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 Miikka Koskinen
+#
+# SPDX-License-Identifier: ISC
+
 from hypothesis import given, strategies as st
 from numpy.testing import assert_equal
 

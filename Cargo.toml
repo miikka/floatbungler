@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 Miikka Koskinen
+#
+# SPDX-License-Identifier: ISC
+
 [package]
 name = "floatbungler"
 version = "0.1.0"

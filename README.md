@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2025 Miikka Koskinen
+
+SPDX-License-Identifier: ISC
+-->
+
 # floatbungler
 
 A Python library, written in Rust, implementing compression algorithms for floating-point time series data.

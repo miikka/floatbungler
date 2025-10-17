@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Miikka Koskinen
+//
+// SPDX-License-Identifier: ISC
+
 use bytes::{Bytes, BytesMut};
 use pyo3::prelude::*;
 

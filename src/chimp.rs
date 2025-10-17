@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Miikka Koskinen
+//
+// SPDX-License-Identifier: ISC
+
 use crate::bit_utils::{bin_count_leading, bin_decode, bin_encode, count_trailing};
 use crate::bits::{Bitread, Bitwrite};
 use bytes::{Bytes, BytesMut};

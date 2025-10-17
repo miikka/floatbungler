@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Miikka Koskinen
+//
+// SPDX-License-Identifier: ISC
+
 use bytes::{BufMut, Bytes, BytesMut};
 
 pub struct Bitwrite {

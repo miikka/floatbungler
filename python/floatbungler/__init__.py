@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 Miikka Koskinen
+#
+# SPDX-License-Identifier: ISC
+
 from .floatbungler import *
 
 __doc__ = floatbungler.__doc__

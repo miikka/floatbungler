@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Miikka Koskinen
+//
+// SPDX-License-Identifier: ISC
+
 // rustimport:pyo3
 
 use crate::bit_utils::{count_leading, count_trailing};

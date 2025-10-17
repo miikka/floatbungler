@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Miikka Koskinen
+//
+// SPDX-License-Identifier: ISC
+
 use pyo3::prelude::*;
 
 mod bits;

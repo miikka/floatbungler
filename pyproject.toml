@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 Miikka Koskinen
+#
+# SPDX-License-Identifier: ISC
+
 [build-system]
 requires = ["maturin>=1.9,<2.0"]
 build-backend = "maturin"

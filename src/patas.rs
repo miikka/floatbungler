@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Miikka Koskinen
+//
+// SPDX-License-Identifier: ISC
+
 use crate::bit_utils::{count_leading, count_trailing};
 use bytes::{Buf, BufMut, Bytes, BytesMut};
 use pyo3::prelude::*;

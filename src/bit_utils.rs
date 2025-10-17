@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Miikka Koskinen
+//
+// SPDX-License-Identifier: ISC
+
 /// Counts the trailing zeros in the binary representation of the given integer.
 pub(crate) fn count_trailing(x: u64) -> u8 {
     if x == 0 {
