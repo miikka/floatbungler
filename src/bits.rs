@@ -115,8 +115,6 @@ mod tests {
 
         let bytes = stream.to_bytes();
 
-        println!("{:x?}", &bytes);
-
         let mut r = Bitread::new(&bytes);
         assert_eq!(r.read_f64(), value)
     }

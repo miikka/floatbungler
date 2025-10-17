@@ -62,30 +62,14 @@ fn encode_plain(input: &[f64]) -> Bytes {
             stream.put_u64_lowest_bits((index - best_index) as u64, 7);
 
             if xor == 0 {
-                println!("control 00");
-                println!("index = {} bits = {:064b}", index - best_index, best_bits);
                 stream.put_bit(0);
             } else {
-                println!("control 01");
-                println!(
-                    "index = {} rb = {} bits = {:064b}",
-                    index - best_index,
-                    best_index,
-                    best_bits
-                );
                 stream.put_bit(1);
                 let leading = bin_count_leading(xor);
                 stream.put_u64_lowest_bits(bin_encode(leading) as u64, 3);
                 let meaningful_count = 64 - leading - trailing;
                 stream.put_u64_lowest_bits(meaningful_count as u64, 6);
                 stream.put_u64_lowest_bits(xor >> trailing, meaningful_count);
-                println!(
-                    "leading = {} meaningful_count = {} trailing = {} xor = {:b}",
-                    leading,
-                    meaningful_count,
-                    trailing,
-                    xor >> trailing
-                );
                 prev_leading = leading;
             }
         } else {
@@ -93,11 +77,8 @@ fn encode_plain(input: &[f64]) -> Bytes {
             let xor = curr_bits ^ prev_bits;
             let leading = bin_count_leading(xor);
             if prev_leading == leading {
-                println!("control 10");
-                println!("xor = {:064b} leading = {}", xor, leading);
                 stream.put_bit(0);
             } else {
-                println!("control 11");
                 stream.put_bit(1);
                 stream.put_u64_lowest_bits(bin_encode(leading) as u64, 3);
             }
@@ -147,23 +128,12 @@ pub fn decode(input: &[u8], count: usize) -> Vec<f64> {
             );
 
             let curr_bits = if stream.read_bit() == 0 {
-                println!("control 00");
-                println!("index = {} bits = {:064b}", best_index, best_bits);
                 best_bits
             } else {
-                println!("control 01");
-                println!(
-                    "index = {} rb = {} bits = {:064b}",
-                    best_index, rb_index, best_bits
-                );
                 let leading = bin_decode(stream.read_u64_lowest_bits(3) as u8);
                 let meaningful_count = stream.read_u64_lowest_bits(6);
                 let meaningful = stream.read_u64_lowest_bits(meaningful_count as u8);
                 let trailing = 64 - leading - meaningful_count as u8;
-                println!(
-                    "leading = {} meaningful_count = {} trailing = {} xor = {:b}",
-                    leading, meaningful_count, trailing, meaningful
-                );
                 prev_leading = leading;
                 best_bits ^ (meaningful << trailing)
             };
@@ -173,15 +143,12 @@ pub fn decode(input: &[u8], count: usize) -> Vec<f64> {
             prev_bits = curr_bits;
         } else {
             let xor = if stream.read_bit() == 0 {
-                println!("control 10");
                 stream.read_u64_lowest_bits(64 - prev_leading as u8)
             } else {
-                println!("control 11");
                 let leading = bin_decode(stream.read_u64_lowest_bits(3) as u8);
                 prev_leading = leading;
                 stream.read_u64_lowest_bits(64 - leading as u8)
             };
-            println!("xor = {:064b} leading = {}", xor, prev_leading);
             let curr_bits = prev_bits ^ xor;
             let curr = f64::from_bits(curr_bits);
             result.push(curr);

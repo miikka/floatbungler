@@ -32,7 +32,5 @@ fn floatbungler(m: &Bound<'_, PyModule>) -> PyResult<()> {
         .getattr("modules")?
         .set_item("floatbungler.chimp128", chimp128)?;
 
-    println!("flax!");
-
     Ok(())
 }

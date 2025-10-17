@@ -27,14 +27,6 @@ uv run pytest
 # Or using just
 just test
 
-# Run Rust tests
-cargo test
-
-# Run a specific Rust test
-cargo test test_name
-
-# Run tests in a specific module
-cargo test gorilla::tests
 ```
 
 ## Architecture
@@ -70,14 +62,13 @@ The Rust implementation is organized into modules:
 
 ### Testing
 
-- **Rust tests**: Property-based tests using proptest in `chimp128.rs`
-- **Python tests**: `test/test_gorilla.py` uses Hypothesis for property-based testing of the Gorilla codec
+- **Python tests**: Both `test/test_gorilla.py` and `test/test_chimp128.py` use Hypothesis for property-based testing of the compression codecs. Tests use `numpy.testing.assert_equal` to handle NaN comparisons correctly.
 
 ## Key Implementation Details
 
 ### PyO3 Module Structure
 
-The project uses PyO3's submodule pattern. The `gorilla` submodule is created as a separate PyModule and added to sys.modules to support direct imports. This is a workaround for PyO3 issue #759.
+The project uses PyO3's submodule pattern. Both `gorilla` and `chimp128` submodules are created as separate PyModules and added to sys.modules to support direct imports (`from floatbungler import gorilla`, `from floatbungler import chimp128`). This is a workaround for PyO3 issue #759.
 
 ### Compression Algorithms
 
@@ -95,5 +86,5 @@ Chimp128 additionally uses:
 
 - The project requires Python 3.10+
 - Maturin is configured to use `python-source = "python"` to find the Python package
-- There are debug `println!` statements throughout the code for development/debugging
-- The Gorilla implementation has a TODO to make NaN handling work correctly
+- Both compression algorithms handle NaN values correctly
+- To add new dependencies, use `uv add` instead of editing `pyproject.toml`
