@@ -1,33 +1,10 @@
 // rustimport:pyo3
 
+use crate::bit_utils::{count_leading, count_trailing};
 use crate::bits::{Bitread, Bitwrite};
 use bytes::{Bytes, BytesMut};
 
 use pyo3::prelude::*;
-
-pub(crate) fn leading_zeros(x: u64) -> u8 {
-    let mut count = 0;
-
-    while count < 64 {
-        if x >> (63 - count) != 0 {
-            break;
-        }
-        count += 1;
-    }
-
-    count
-}
-
-pub(crate) fn trailing_zeros(x: u64) -> u8 {
-    let mut count: u8 = 0;
-    while count < 64 {
-        if (x >> count) & 1 != 0 {
-            break;
-        }
-        count += 1;
-    }
-    count
-}
 
 pub fn encode_plain(input: &[f64]) -> Bytes {
     let buf = BytesMut::with_capacity(input.len() * 8);
@@ -51,8 +28,8 @@ pub fn encode_plain(input: &[f64]) -> Bytes {
             stream.put_bit(0);
         } else {
             stream.put_bit(1);
-            let leading = leading_zeros(xor);
-            let trailing: u8 = trailing_zeros(xor);
+            let leading = count_leading(xor);
+            let trailing: u8 = count_trailing(xor);
             let meaningful = xor >> trailing;
 
             if leading >= prev_leading && trailing == prev_trailing {
