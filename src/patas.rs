@@ -1,0 +1,133 @@
+use crate::bit_utils::{count_leading, count_trailing};
+use bytes::{Buf, BufMut, Bytes, BytesMut};
+use pyo3::prelude::*;
+
+#[pyfunction]
+pub fn encode(input: Vec<f64>) -> Vec<u8> {
+    encode_plain(&input).into()
+}
+
+fn encode_plain(input: &[f64]) -> Bytes {
+    let mut buf = BytesMut::new();
+
+    if input.len() == 0 {
+        return buf.into();
+    }
+
+    buf.put_f64(input[0]);
+
+    let mut ringbuf: [u64; 128] = [0; 128];
+    let mut lookup: [u8; 16384] = [u8::MAX; 16384];
+
+    let prev_bits = input[0].to_bits();
+    ringbuf[0] = prev_bits;
+    lookup[(prev_bits & 0x3FFF) as usize] = 0;
+
+    let mut index = 1;
+    for curr in input[1..].iter() {
+        let curr_bits = curr.to_bits();
+        let lookup_index = lookup[(curr_bits & 0x3FFF) as usize];
+
+        let best_index = if lookup_index < u8::MAX {
+            lookup_index
+        } else {
+            ringbuf
+                .iter()
+                .enumerate()
+                .filter(|(i, _)| (*i as u8) < index)
+                .max_by_key(|(_, val)| count_trailing(curr_bits ^ *val))
+                .unwrap()
+                .0 as u8
+        };
+        let best_bits = ringbuf[best_index as usize];
+
+        let xor = curr_bits ^ best_bits;
+
+        let (trailing, meaningful_bytes) = if xor == 0 {
+            (0, 0)
+        } else {
+            let trailing = count_trailing(xor);
+            let leading = count_leading(xor);
+            let meaningful_bytes = (64 - trailing - leading).div_ceil(8);
+            (trailing, meaningful_bytes - 1)
+        };
+
+        let ref_index = index - best_index;
+        let header: u16 = ((ref_index as u16) << 9)
+            | ((meaningful_bytes as u16) << 6)
+            | (trailing & 0b111111) as u16;
+        buf.put_u16(header);
+
+        if xor != 0 {
+            let meaningful = xor >> trailing;
+            for i in 0..(meaningful_bytes + 1) {
+                let value = (meaningful >> ((meaningful_bytes - i) * 8)) & 0xFF;
+                buf.put_u8(value as u8);
+            }
+        }
+
+        ringbuf[(index % 128) as usize] = curr_bits;
+        lookup[(curr_bits & 0x3FFF) as usize] = index % 128;
+        index += 1;
+    }
+
+    buf.into()
+}
+
+#[pyfunction]
+pub fn decode(input: Vec<u8>, count: usize) -> Vec<f64> {
+    decode_plain(&input, count)
+}
+
+fn decode_plain(input: &[u8], count: usize) -> Vec<f64> {
+    let mut result: Vec<f64> = vec![];
+
+    if count == 0 {
+        return result;
+    }
+
+    // TODO(miikka) How to use Bytes-like interface without copying the data?
+    let mut buf = Bytes::copy_from_slice(input);
+
+    let first = buf.get_f64();
+    result.push(first);
+
+    let mut ringbuf: [u64; 128] = [0; 128];
+    let first_bits = first.to_bits();
+    ringbuf[0] = first_bits;
+
+    for index in 1..count {
+        let header = buf.get_u16();
+        let ref_index = (header >> 9) as usize;
+        let best_index = index - ref_index;
+
+        assert!(
+            best_index < index,
+            "best_index {} greater or equal to the index {}",
+            best_index,
+            index
+        );
+
+        let meaningful_bytes = (header >> 6) & 0b111;
+        let trailing = header & 0b111111;
+
+        let xor = if trailing == 0 && meaningful_bytes == 0 {
+            0
+        } else {
+            let mut meaningful: u64 = 0;
+            for _ in 0..(meaningful_bytes + 1) {
+                meaningful = meaningful << 8 | (buf.get_u8() as u64);
+            }
+            meaningful << trailing
+        };
+
+        let best_bits = ringbuf[best_index as usize];
+        let curr_bits = best_bits ^ xor;
+        let curr = f64::from_bits(curr_bits);
+
+        ringbuf[index % 128] = curr_bits;
+        result.push(curr);
+    }
+
+    result
+}

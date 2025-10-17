@@ -5,6 +5,7 @@ mod bit_utils;
 mod gorilla;
 mod chimp;
 mod chimp128;
+mod patas;
 
 // TODO(miikka) Convert the module declaration to use declarative modules
 // https://pyo3.rs/v0.26.0/module.html?highlight=declarative#declarative-modules
@@ -42,6 +43,16 @@ fn floatbungler(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.py().import("sys")?
         .getattr("modules")?
         .set_item("floatbungler.chimp128", chimp128)?;
+
+    let patas = PyModule::new(m.py(), "patas")?;
+    patas.add_function(wrap_pyfunction!(patas::encode, &patas)?)?;
+    patas.add_function(wrap_pyfunction!(patas::decode, &patas)?)?;
+    m.add_submodule(&patas)?;
+
+    // Workaround to make `from floatbungler import patas` work
+    m.py().import("sys")?
+        .getattr("modules")?
+        .set_item("floatbungler.patas", patas)?;
 
     Ok(())
 }
