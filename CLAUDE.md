@@ -75,6 +75,7 @@ The Rust implementation is organized into modules:
 ### Python Interface (`python/floatbungler/`)
 
 - **`__init__.py`**: Re-exports everything from the compiled Rust extension module
+- **Type stubs (`.pyi` files)**: Type stubs are provided for all compression algorithms (`gorilla.pyi`, `chimp.pyi`, `chimp128.pyi`, `patas.pyi`) to enable IDE autocomplete and static type checking
 
 ### Testing
 
