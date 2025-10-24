@@ -9,12 +9,30 @@ build-backend = "maturin"
 [project]
 name = "floatbungler"
 requires-python = ">=3.10"
+description = "Compression algorithms for floating-point time series data"
+readme = "README.md"
+license = "ISC"
+license-files = ["LICENSES/*"]
+keywords = ["compression", "time-series", "float64", "gorilla", "chimp", "patas"]
 classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: ISC License (ISCL)",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Programming Language :: Rust",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
+    "Topic :: System :: Archiving :: Compression",
 ]
 dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://codeberg.org/miikka/floatbungler"
+Issues = "https://codeberg.org/miikka/floatbungler/issues"
 
 [tool.maturin]
 features = ["pyo3/extension-module"]
