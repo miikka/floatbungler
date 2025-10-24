@@ -4,3 +4,6 @@
 
 test:
     uv run pytest
+
+changelog:
+    git-cliff -o CHANGELOG.md
