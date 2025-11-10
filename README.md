@@ -17,7 +17,16 @@ floatbungler provides four compression algorithms for float64 arrays:
 - **Chimp128** - Like Chimp but with 128-entry ring buffer for better reference selection
 - **Patas** - Simpler, byte-aligned variant of Chimp128
 
-All algorithms use XOR-based compression that exploits temporal locality in time series data.
+All algorithms use XOR-based compression that exploits similarity between consecutive values in time series data.
+
+## Motivation
+
+I implemented the algorithms to understand them better myself.
+I wanted to wrap them into a package in case I ever want to come back to them.
+
+Should you use this in production?
+Probably no.
+Most likely what you want instead is [ALP](https://github.com/cwida/ALP).
 
 ## Usage
 
