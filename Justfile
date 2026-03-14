@@ -2,6 +2,14 @@
 #
 # SPDX-License-Identifier: ISC
 
+check:
+    cargo fmt --check
+    cargo clippy
+
+fix:
+    cargo fmt
+    cargo clippy --fix
+
 test:
     uv run pytest
 

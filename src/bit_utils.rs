@@ -38,7 +38,7 @@ fn bin_count(count: u8) -> u8 {
 }
 
 pub(crate) fn bin_count_leading(x: u64) -> u8 {
-    bin_count(count_leading(x))
+    bin_count(x.leading_zeros() as u8)
 }
 
 pub(crate) fn bin_encode(bin_count: u8) -> u8 {
@@ -50,23 +50,4 @@ pub(crate) fn bin_encode(bin_count: u8) -> u8 {
 
 pub(crate) fn bin_decode(bin_index: u8) -> u8 {
     [0, 8, 12, 16, 18, 20, 22, 24][bin_index as usize]
-}
-
-/// Counst the leading zeros in the binary representation of the given integer.
-pub(crate) fn count_leading(x: u64) -> u8 {
-    if x == 0 {
-        return 64;
-    }
-
-    let mut count = 0;
-    let mut mask = 1 << 63;
-    loop {
-        if (x & mask) == mask {
-            break;
-        }
-        mask >>= 1;
-        count += 1;
-    }
-
-    count
 }

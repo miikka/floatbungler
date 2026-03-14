@@ -6,7 +6,7 @@ use bytes::{Bytes, BytesMut};
 use pyo3::prelude::*;
 
 use crate::{
-    bit_utils::{bin_count_leading, bin_decode, bin_encode, count_leading, count_trailing},
+    bit_utils::{bin_count_leading, bin_decode, bin_encode, count_trailing},
     bits::{Bitread, Bitwrite},
 };
 
@@ -33,7 +33,7 @@ fn encode_plain(input: &[f64]) -> Bytes {
     stream.put_f64(first);
 
     let mut prev_bits = first.to_bits();
-    let mut prev_leading = count_leading(prev_bits);
+    let mut prev_leading = prev_bits.leading_zeros() as u8;
     ringbuf[0] = prev_bits;
 
     // 0x3FFF = 16383 = 16384 - 1 = 2^14 - 1;

@@ -4,7 +4,7 @@
 
 // rustimport:pyo3
 
-use crate::bit_utils::{count_leading, count_trailing};
+use crate::bit_utils::count_trailing;
 use crate::bits::{Bitread, Bitwrite};
 use bytes::{Bytes, BytesMut};
 
@@ -32,7 +32,7 @@ pub fn encode_plain(input: &[f64]) -> Bytes {
             stream.put_bit(0);
         } else {
             stream.put_bit(1);
-            let leading = count_leading(xor);
+            let leading = xor.leading_zeros() as u8;
             let trailing: u8 = count_trailing(xor);
             let meaningful = xor >> trailing;
 

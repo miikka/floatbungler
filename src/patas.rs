@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: ISC
 
-use crate::bit_utils::{count_leading, count_trailing};
+use crate::bit_utils::count_trailing;
 use bytes::{Buf, BufMut, Bytes, BytesMut};
 use pyo3::prelude::*;
 
@@ -58,7 +58,7 @@ fn encode_plain(input: &[f64]) -> Bytes {
             (0, 0)
         } else {
             let trailing = count_trailing(xor);
-            let leading = count_leading(xor);
+            let leading = xor.leading_zeros() as u8;
             let meaningful_bytes = (64 - trailing - leading).div_ceil(8);
             (trailing, meaningful_bytes - 1)
         };
