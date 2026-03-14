@@ -31,7 +31,8 @@ pub fn encode_plain(input: &[f64]) -> Bytes {
             stream.put_bit(0);
         } else {
             stream.put_bit(1);
-            let leading = xor.leading_zeros() as u8;
+            // Gorilla stores leading zeros in 5 bits, so cap to [0, 31].
+            let leading = xor.leading_zeros().min(31) as u8;
             let trailing = xor.trailing_zeros() as u8;
             let meaningful = xor >> trailing;
 
