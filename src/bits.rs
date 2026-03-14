@@ -63,6 +63,12 @@ impl Bitwrite {
             remaining -= n;
         }
 
+        while remaining >= 32 {
+            let word = ((value >> (remaining - 32)) & 0xFFFF_FFFF) as u32;
+            self.buf.put_u32(word);
+            remaining -= 32;
+        }
+
         while remaining >= 8 {
             let byte = ((value >> (remaining - 8)) & 0xFF) as u8;
             self.buf.put_u8(byte);
@@ -153,6 +159,14 @@ impl<'a> Bitread<'a> {
             bits = (bits << 32) | u32::from_be_bytes(bytes) as u64;
             self.bytep += 4;
             remaining -= 32;
+        }
+
+        while remaining >= 16 {
+            let mut bytes = [0u8; 2];
+            bytes.copy_from_slice(&self.buf[self.bytep..self.bytep + 2]);
+            bits = (bits << 16) | u16::from_be_bytes(bytes) as u64;
+            self.bytep += 2;
+            remaining -= 16;
         }
 
         while remaining >= 8 {
