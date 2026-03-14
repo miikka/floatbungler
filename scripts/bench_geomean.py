@@ -3,6 +3,8 @@
 #
 # SPDX-License-Identifier: ISC
 
+# Print the geometric mean of benchmark medians from `bench.json`. The output is in microseconds (µs).
+
 from __future__ import annotations
 
 import argparse
@@ -59,7 +61,7 @@ def geometric_mean(values: list[float]) -> float:
 def main() -> int:
     args = parse_args()
     medians = load_medians(Path(args.bench_json))
-    print(geometric_mean(medians))
+    print(geometric_mean(medians) * 1000000)
     return 0
 
 
