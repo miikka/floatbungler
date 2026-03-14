@@ -93,7 +93,19 @@ fn encode_plain(input: &[f64]) -> Bytes {
             let trailing = xor.trailing_zeros() as u8;
 
             // log2(128) + log2(64) = 13
-            if trailing > 13 {
+            if trailing <= 13 {
+                stream.put_bit(1);
+                let xor = curr_bits ^ prev_bits;
+                let (leading, leading_code) = bin_leading_and_code(xor);
+                if prev_leading == leading {
+                    stream.put_bit(0);
+                } else {
+                    stream.put_bit(1);
+                    stream.put_small::<3>(leading_code);
+                }
+                stream.put_u64_lowest_bits(xor, 64 - leading);
+                prev_leading = leading;
+            } else {
                 stream.put_bit(0);
                 stream.put_small::<7>((index - best_index) as u8);
 
@@ -108,18 +120,6 @@ fn encode_plain(input: &[f64]) -> Bytes {
                     stream.put_u64_lowest_bits(xor >> trailing, meaningful_count);
                     prev_leading = leading;
                 }
-            } else {
-                stream.put_bit(1);
-                let xor = curr_bits ^ prev_bits;
-                let (leading, leading_code) = bin_leading_and_code(xor);
-                if prev_leading == leading {
-                    stream.put_bit(0);
-                } else {
-                    stream.put_bit(1);
-                    stream.put_small::<3>(leading_code);
-                }
-                stream.put_u64_lowest_bits(xor, 64 - leading);
-                prev_leading = leading;
             }
 
             ringbuf[index & 127] = curr_bits;

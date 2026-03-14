@@ -45,6 +45,8 @@ Optimize the runtime of the Chimp128 algorithm implementation, measured via the 
 - **Kept**: replaced chimp128 decode `bin_decode()` calls with direct 8-entry table indexing from the 3-bit code. Result: **526.02 µs**.
 - **Kept**: avoiding per-iteration `LookupEntry` copy in encode (`entries[key]` direct field read) gave a major win. Result: **402.33 µs**.
 - **Kept (major)**: marked hot bitstream primitives with `#[inline(always)]` (`put_bit`, `put_u64_lowest_bits`, `read_bit`, `read_u64_lowest_bits`) on top of chunked bit loops. Result: **367.77 µs**.
-- **Kept (major)**: expanded bitstream chunk handling for mid-sized transfers: added 32-bit block writes and 16-bit block read/write chunks in `put_u64_lowest_bits` / `read_u64_lowest_bits`. Current best: **344.04 µs**.
-- **Discarded**: several micro-tuning attempts regressed, including decode assert removal, lookup key reuse, match-vs-table decode variants, unsafe table indexing, wrapper methods for fixed-width bit fields, and extra dedicated count==32 fast paths.
+- **Kept (major)**: expanded bitstream chunk handling for mid-sized transfers: added 32-bit block writes and 16-bit block read/write chunks in `put_u64_lowest_bits` / `read_u64_lowest_bits`. Result: **344.04 µs**.
+- **Kept (major)**: added true const-generic small-width bit operations (`put_small`/`read_small`) and routed chimp128 3/6/7-bit control fields through them. Result: **334.38 µs**.
+- **Kept**: refactored thread-local chimp128 lookup cache from AoS (`LookupEntry`) to SoA (`epochs[]` + `values[]`) with single borrow across loop. Current best: **325.49 µs**.
+- **Discarded**: several micro-tuning attempts regressed, including decode assert removal, match-vs-table decode variants, unsafe table indexing/loads, extra dedicated count==32 fast paths, and shrinking epoch type to `u16`.
 - **Checks-failed dead end**: changing `Bitwrite::into_bytes()` to skip final zero byte on byte-aligned endings breaks golden vector byte compatibility across codecs.
