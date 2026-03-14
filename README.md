@@ -101,6 +101,10 @@ uv sync
 uv run pytest
 ```
 
+## Benchmarks
+
+See https://miikka.github.io/floatbungler/dev/bench/
+
 ## License
 
 See LICENSE file for details.
