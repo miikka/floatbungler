@@ -47,21 +47,7 @@ fn encode_plain(input: &[f64]) -> Bytes {
         let best_index = if lookup_index != u32::MAX && index - lookup_index as usize <= 128 {
             lookup_index as usize & 127
         } else {
-            let available = index.min(128);
-            let mut best_index = 0usize;
-            let mut best_trailing = ringbuf[0].trailing_zeros() as u8;
-
-            let mut i = 1;
-            while i < available {
-                let trailing = ringbuf[i].trailing_zeros() as u8;
-                if trailing > best_trailing {
-                    best_trailing = trailing;
-                    best_index = i;
-                }
-                i += 1;
-            }
-
-            best_index
+            (index - 1) & 127
         };
         let best_bits = ringbuf[best_index];
         let xor = curr_bits ^ best_bits;
