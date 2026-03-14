@@ -52,10 +52,15 @@ impl Bitwrite {
 
         let mut remaining = count;
 
-        while self.bitcount != 0 {
-            let bit = ((value >> (remaining - 1)) & 1) as u8;
-            self.put_bit(bit);
-            remaining -= 1;
+        if self.bitcount != 0 {
+            let n = 8 - self.bitcount;
+            let shift = remaining - n;
+            let mask = ((1u16 << n) - 1) as u8;
+            self.bitbuf |= ((value >> shift) as u8) & mask;
+            self.buf.put_u8(self.bitbuf);
+            self.bitbuf = 0;
+            self.bitcount = 0;
+            remaining -= n;
         }
 
         while remaining >= 8 {
@@ -133,9 +138,13 @@ impl<'a> Bitread<'a> {
         let mut bits: u64 = 0;
         let mut remaining = count;
 
-        while self.bitp != 0 {
-            bits = (bits << 1) | (self.read_bit() as u64);
-            remaining -= 1;
+        if self.bitp != 0 {
+            let n = 8 - self.bitp;
+            let mask = ((1u16 << n) - 1) as u8;
+            bits = (self.buf[self.bytep] & mask) as u64;
+            self.bytep += 1;
+            self.bitp = 0;
+            remaining -= n;
         }
 
         while remaining >= 8 {
