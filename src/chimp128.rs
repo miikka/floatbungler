@@ -106,16 +106,16 @@ fn encode_plain(input: &[f64]) -> Bytes {
             // log2(128) + log2(64) = 13
             if trailing > 13 {
                 stream.put_bit(0);
-                stream.put_u64_lowest_bits((index - best_index) as u64, 7);
+                stream.put_small::<7>((index - best_index) as u8);
 
                 if xor == 0 {
                     stream.put_bit(0);
                 } else {
                     stream.put_bit(1);
                     let (leading, leading_code) = bin_leading_and_code(xor);
-                    stream.put_u64_lowest_bits(leading_code as u64, 3);
+                    stream.put_small::<3>(leading_code);
                     let meaningful_count = 64 - leading - trailing;
-                    stream.put_u64_lowest_bits(meaningful_count as u64, 6);
+                    stream.put_small::<6>(meaningful_count);
                     stream.put_u64_lowest_bits(xor >> trailing, meaningful_count);
                     prev_leading = leading;
                 }
@@ -127,7 +127,7 @@ fn encode_plain(input: &[f64]) -> Bytes {
                     stream.put_bit(0);
                 } else {
                     stream.put_bit(1);
-                    stream.put_u64_lowest_bits(leading_code as u64, 3);
+                    stream.put_small::<3>(leading_code);
                 }
                 stream.put_u64_lowest_bits(xor, 64 - leading);
                 prev_leading = leading;
@@ -167,7 +167,7 @@ pub fn decode(input: &[u8], count: usize) -> Vec<f64> {
 
     for index in 1..count {
         if stream.read_bit() == 0 {
-            let best_index = stream.read_u64_lowest_bits(7);
+            let best_index = stream.read_small::<7>() as u64;
             let rb_index = index.wrapping_sub(best_index as usize) & 127;
             let best_bits = ringbuf[rb_index];
             assert!(
@@ -179,9 +179,9 @@ pub fn decode(input: &[u8], count: usize) -> Vec<f64> {
             let curr_bits = if stream.read_bit() == 0 {
                 best_bits
             } else {
-                let leading_code = stream.read_u64_lowest_bits(3) as u8;
+                let leading_code = stream.read_small::<3>();
                 let leading = [0, 8, 12, 16, 18, 20, 22, 24][leading_code as usize];
-                let meaningful_count = stream.read_u64_lowest_bits(6);
+                let meaningful_count = stream.read_small::<6>() as u64;
                 let meaningful = stream.read_u64_lowest_bits(meaningful_count as u8);
                 let trailing = 64 - leading - meaningful_count as u8;
                 prev_leading = leading;
@@ -195,7 +195,7 @@ pub fn decode(input: &[u8], count: usize) -> Vec<f64> {
             let xor = if stream.read_bit() == 0 {
                 stream.read_u64_lowest_bits(64 - prev_leading)
             } else {
-                let leading_code = stream.read_u64_lowest_bits(3) as u8;
+                let leading_code = stream.read_small::<3>();
                 let leading = [0, 8, 12, 16, 18, 20, 22, 24][leading_code as usize];
                 prev_leading = leading;
                 stream.read_u64_lowest_bits(64 - leading)

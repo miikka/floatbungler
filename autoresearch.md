@@ -42,6 +42,9 @@ Optimize the runtime of the Chimp128 algorithm implementation, measured via the 
 - **Kept**: added single-byte-fit fast paths for `put_u64_lowest_bits` / `read_u64_lowest_bits` to accelerate frequent small control fields. Result: **527.31 µs**.
 - **Kept**: implemented thread-local generation-stamped lookup cache in chimp128 encode to avoid per-call initialization of a 16,384-entry lookup array. Result: **526.95 µs**.
 - **Kept**: re-evaluated decode result preallocation (`Vec::with_capacity(count)` with early empty return) on the new baseline. Result: **526.53 µs**.
-- **Kept**: replaced chimp128 decode `bin_decode()` calls with direct 8-entry table indexing from the 3-bit code. Current best: **526.02 µs**.
-- **Discarded**: several micro-tuning attempts regressed, including decode assert removal, lookup key reuse, `inline(always)` forcing, while-loop rewrites, broader `% 8 == 0` bit I/O fast paths, wrapper methods for fixed-width bit fields, and UnsafeCell/packed lookup representations.
+- **Kept**: replaced chimp128 decode `bin_decode()` calls with direct 8-entry table indexing from the 3-bit code. Result: **526.02 µs**.
+- **Kept**: avoiding per-iteration `LookupEntry` copy in encode (`entries[key]` direct field read) gave a major win. Result: **402.33 µs**.
+- **Kept (major)**: marked hot bitstream primitives with `#[inline(always)]` (`put_bit`, `put_u64_lowest_bits`, `read_bit`, `read_u64_lowest_bits`) on top of chunked bit loops. Result: **367.77 µs**.
+- **Kept (major)**: expanded bitstream chunk handling for mid-sized transfers: added 32-bit block writes and 16-bit block read/write chunks in `put_u64_lowest_bits` / `read_u64_lowest_bits`. Current best: **344.04 µs**.
+- **Discarded**: several micro-tuning attempts regressed, including decode assert removal, lookup key reuse, match-vs-table decode variants, unsafe table indexing, wrapper methods for fixed-width bit fields, and extra dedicated count==32 fast paths.
 - **Checks-failed dead end**: changing `Bitwrite::into_bytes()` to skip final zero byte on byte-aligned endings breaks golden vector byte compatibility across codecs.

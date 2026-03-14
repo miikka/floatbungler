@@ -1,2 +1,3 @@
-- Deepen Chimp128 bitstream specialization: dedicated methods for the most frequent control widths (1/3/6/7) that operate directly on the internal bit buffer (beyond the current single-byte fit fast path) to reduce per-call branching.
-- Investigate a cached 64-bit sliding window in `Bitread` for unaligned reads (`read_u64_lowest_bits`) to cut repeated byte-by-byte loops while preserving exact bit semantics.
+- Implement a cached 64-bit sliding window in `Bitread` for unaligned `read_u64_lowest_bits` to reduce repeated slice indexing/copying while keeping exact bit semantics.
+- Explore const-generic, width-specialized bit operations (e.g., `put_bits::<N>`, `read_bits::<N>`) for the hottest control widths in Chimp128 (1/3/6/7) to let LLVM fully constant-fold masks/shifts.
+- Revisit thread-local lookup cache layout with profiling-guided field ordering/padding adjustments to reduce load/store pressure in the encode hot loop.

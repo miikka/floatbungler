@@ -92,6 +92,35 @@ impl Bitwrite {
         self.put_u64_lowest_bits(value.to_bits(), 64);
     }
 
+    #[inline(always)]
+    pub fn put_small<const N: u8>(&mut self, value: u8) {
+        debug_assert!(N > 0 && N <= 8);
+        let free = 8 - self.bitcount;
+
+        if N <= free {
+            let mask = ((1u16 << N) - 1) as u8;
+            self.bitbuf |= (value & mask) << (free - N);
+            self.bitcount += N;
+            if self.bitcount == 8 {
+                self.buf.put_u8(self.bitbuf);
+                self.bitbuf = 0;
+                self.bitcount = 0;
+            }
+            return;
+        }
+
+        let first = free;
+        let second = N - first;
+
+        let first_mask = ((1u16 << first) - 1) as u8;
+        self.bitbuf |= (value >> second) & first_mask;
+        self.buf.put_u8(self.bitbuf);
+
+        let second_mask = ((1u16 << second) - 1) as u8;
+        self.bitbuf = (value & second_mask) << (8 - second);
+        self.bitcount = second;
+    }
+
     pub fn into_bytes(mut self) -> Bytes {
         self.buf.put_u8(self.bitbuf);
         self.buf.split().into()
@@ -192,6 +221,38 @@ impl<'a> Bitread<'a> {
 
     pub fn read_f64(&mut self) -> f64 {
         f64::from_bits(self.read_u64_lowest_bits(64))
+    }
+
+    #[inline(always)]
+    pub fn read_small<const N: u8>(&mut self) -> u8 {
+        debug_assert!(N > 0 && N <= 8);
+        let available = 8 - self.bitp;
+
+        if N <= available {
+            let byte = self.buf[self.bytep];
+            let shift = available - N;
+            let mask = ((1u16 << N) - 1) as u8;
+            let bits = (byte >> shift) & mask;
+            self.bitp += N;
+            if self.bitp == 8 {
+                self.bytep += 1;
+                self.bitp = 0;
+            }
+            return bits;
+        }
+
+        let first = available;
+        let second = N - first;
+
+        let first_mask = ((1u16 << first) - 1) as u8;
+        let first_bits = self.buf[self.bytep] & first_mask;
+        self.bytep += 1;
+        self.bitp = second;
+
+        let second_mask = ((1u16 << second) - 1) as u8;
+        let second_bits = (self.buf[self.bytep] >> (8 - second)) & second_mask;
+
+        (first_bits << second) | second_bits
     }
 }
 
