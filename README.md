@@ -101,6 +101,11 @@ uv sync
 uv run pytest
 ```
 
+## Compatibility
+
+The implementations here have not been tested against any other implementation.
+At least the Patas implementation is not compatible with the one in DuckDB.
+
 ## Benchmarks
 
 See https://miikka.github.io/floatbungler/dev/bench/

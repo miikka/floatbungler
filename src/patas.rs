@@ -34,6 +34,9 @@ fn encode_plain(input: &[f64]) -> Bytes {
         let best_index = if lookup_index < u8::MAX {
             lookup_index
         } else {
+            // TODO(miikka) This is a Chimp128 thing, but in DuckDB Patas we
+            // just use the directly previous value if there's not a good
+            // candidate.
             ringbuf
                 .iter()
                 .enumerate()
@@ -75,6 +78,8 @@ fn encode_plain(input: &[f64]) -> Bytes {
             let meaningful_len = (meaningful_bytes + 1) as usize;
             let meaningful_buf = meaningful.to_be_bytes();
             buf.extend_from_slice(&meaningful_buf[8 - meaningful_len..]);
+        } else {
+            buf.put_u8(0);
         }
 
         ringbuf[index % 128] = curr_bits;
@@ -104,15 +109,19 @@ pub fn decode(input: &[u8], count: usize) -> Vec<f64> {
 
     for index in 1..count {
         let header = buf.get_u16();
-        let ref_index = (header >> 9) as usize + 1;
-        let best_index = index - ref_index;
-
+        let ref_index = (header >> 9) as usize;
         let meaningful_bytes = (header >> 6) & 0b111;
         let trailing = header & 0b111111;
 
-        let xor = if trailing == 0 && meaningful_bytes == 0 {
-            0
-        } else {
+        debug_assert!(
+            ref_index <= index,
+            "ref_index={} should be less than or equal to index={}",
+            ref_index,
+            index,
+        );
+        let best_index = index - ref_index - 1;
+
+        let xor = {
             let mut meaningful: u64 = 0;
             for _ in 0..(meaningful_bytes + 1) {
                 meaningful = meaningful << 8 | (buf.get_u8() as u64);
