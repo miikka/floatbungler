@@ -3,17 +3,16 @@
 // SPDX-License-Identifier: ISC
 
 fn bin_count(count: u8) -> u8 {
-    let bins = [0, 8, 12, 16, 18, 20, 22, 24];
-    let mut prev = bins[0];
-
-    for &bin in bins[1..].iter() {
-        if count < bin {
-            return prev;
-        }
-        prev = bin;
+    match count {
+        0..=7 => 0,
+        8..=11 => 8,
+        12..=15 => 12,
+        16..=17 => 16,
+        18..=19 => 18,
+        20..=21 => 20,
+        22..=23 => 22,
+        _ => 24,
     }
-
-    24
 }
 
 pub(crate) fn bin_count_leading(x: u64) -> u8 {
@@ -21,12 +20,29 @@ pub(crate) fn bin_count_leading(x: u64) -> u8 {
 }
 
 pub(crate) fn bin_encode(bin_count: u8) -> u8 {
-    [0, 8, 12, 16, 18, 20, 22, 24]
-        .iter()
-        .position(|&r| r == bin_count)
-        .unwrap() as u8
+    match bin_count {
+        0 => 0,
+        8 => 1,
+        12 => 2,
+        16 => 3,
+        18 => 4,
+        20 => 5,
+        22 => 6,
+        24 => 7,
+        _ => unreachable!("invalid bin_count: {bin_count}"),
+    }
 }
 
 pub(crate) fn bin_decode(bin_index: u8) -> u8 {
-    [0, 8, 12, 16, 18, 20, 22, 24][bin_index as usize]
+    match bin_index {
+        0 => 0,
+        1 => 8,
+        2 => 12,
+        3 => 16,
+        4 => 18,
+        5 => 20,
+        6 => 22,
+        7 => 24,
+        _ => unreachable!("invalid bin_index: {bin_index}"),
+    }
 }

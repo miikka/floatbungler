@@ -1,3 +1,4 @@
 {"type":"config","name":"Chimp128 runtime optimization","metricName":"chimp128_runtime_us","metricUnit":"µs","bestDirection":"lower"}
 {"run":1,"commit":"94551f9","metric":962.9880742729885,"metrics":{},"status":"keep","description":"Baseline for chimp128 runtime using just bench-target; add autoresearch.md/autoresearch.sh/autoresearch.checks.sh infrastructure","timestamp":1773504019766,"segment":0}
 {"run":2,"commit":"656a740","metric":943.249552854506,"metrics":{},"status":"keep","description":"Optimize chimp128 encode/decode ring-buffer indexing: replace iterator-based fallback scan with manual bounded loop and use bitmask (&127) for modulo-128 indexing","timestamp":1773504094716,"segment":0}
+{"run":3,"commit":"465fc51","metric":934.797589779669,"metrics":{},"status":"keep","description":"Reduce chimp128 lookup overhead: use u32 lookup table in encode and remove unused decode lookup table writes","timestamp":1773504168408,"segment":0}

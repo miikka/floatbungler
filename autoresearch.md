@@ -28,4 +28,6 @@ Optimize the runtime of the Chimp128 algorithm implementation, measured via the 
 - Keep encoded/decoded behavior bit-for-bit compatible with existing tests.
 
 ## What's Been Tried
-- Baseline initialized.
+- Baseline initialized at **962.99 µs** (`just bench-target`, checks via `just test`).
+- **Kept**: replaced iterator-based fallback best-index search in `encode_plain()` with a bounded manual loop and changed modulo-128 ops to bitmasking (`& 127`). Result: **943.25 µs**.
+- **Kept**: changed encode lookup table type from `usize` to `u32` and removed unused decode lookup table maintenance. Result: **934.80 µs**.
