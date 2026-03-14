@@ -117,6 +117,6 @@ pub fn encode(input: Vec<f64>) -> Vec<u8> {
 }
 
 #[pyfunction]
-pub fn decode(input: Vec<u8>, count: usize) -> Vec<f64> {
-    decode_plain(&input, count)
+pub fn decode(input: &[u8], count: usize) -> Vec<f64> {
+    decode_plain(input, count)
 }
