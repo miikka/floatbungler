@@ -92,7 +92,7 @@ pub fn decode(input: Vec<u8>, count: usize) -> Vec<f64> {
 }
 
 fn decode_plain(input: &[u8], count: usize) -> Vec<f64> {
-    let mut result: Vec<f64> = vec![];
+    let mut result: Vec<f64> = Vec::with_capacity(count);
 
     if count == 0 {
         return result;
