@@ -101,7 +101,7 @@ impl<'a> Bitread<'a> {
         }
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn read_bit(&mut self) -> u8 {
         let result = self.buf[self.bytep] >> (7 - self.bitp) & 1;
         self.bitp += 1;
