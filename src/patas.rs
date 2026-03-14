@@ -72,10 +72,9 @@ fn encode_plain(input: &[f64]) -> Bytes {
 
         if xor != 0 {
             let meaningful = xor >> trailing;
-            for i in 0..(meaningful_bytes + 1) {
-                let value = (meaningful >> ((meaningful_bytes - i) * 8)) & 0xFF;
-                buf.put_u8(value as u8);
-            }
+            let meaningful_len = (meaningful_bytes + 1) as usize;
+            let meaningful_buf = meaningful.to_be_bytes();
+            buf.extend_from_slice(&meaningful_buf[8 - meaningful_len..]);
         }
 
         ringbuf[index % 128] = curr_bits;
