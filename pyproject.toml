@@ -47,6 +47,11 @@ cache-keys = [{file = "pyproject.toml"}, {file = "Cargo.toml"}, {file = "**/*.rs
 dev = [
     "hypothesis>=6.113.0",
     #    "maturin-import-hook>=0.3.0",
+    "maturin-import-hook>=0.3.0",
     "numpy>=2.2.6",
     "pytest>=8.3.5",
+    "pytest-benchmark>=5.2.3",
 ]
+
+[tool.pytest.ini_options]
+addopts = "--benchmark-disable"
