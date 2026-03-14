@@ -10,15 +10,8 @@ pub fn encode(input: Vec<f64>) -> Vec<u8> {
     encode_plain(&input).into()
 }
 
-fn diff128(a: u8, b: u8) -> u8 {
-    let a1 = a as i16;
-    let b1 = b as i16;
-    // Unlike in Python, % of a negative number stays negative
-    (((a1 - b1) + 128) % 128) as u8
-}
-
 fn encode_plain(input: &[f64]) -> Bytes {
-    let mut buf = BytesMut::new();
+    let mut buf = BytesMut::with_capacity(8 + 10 * input.len());
 
     if input.is_empty() {
         return buf.into();
@@ -34,7 +27,7 @@ fn encode_plain(input: &[f64]) -> Bytes {
     lookup[(prev_bits & 0x3FFF) as usize] = 0;
 
     let mut index: usize = 1;
-    for curr in input[1..].iter() {
+    for &curr in &input[1..] {
         let curr_bits = curr.to_bits();
         let lookup_index = lookup[(curr_bits & 0x3FFF) as usize];
 
@@ -62,7 +55,8 @@ fn encode_plain(input: &[f64]) -> Bytes {
             (trailing, meaningful_bytes - 1)
         };
 
-        let ref_index = diff128(((index - 1) % 128) as u8, best_index);
+        let index_mod_128: u8 = (index % 128) as u8;
+        let ref_index = index_mod_128.wrapping_sub(best_index + 1) % 128;
         debug_assert!(
             ref_index < 128,
             "ref_index must be between 0 and 127, got {} (index={}, best_index={})",
@@ -78,10 +72,9 @@ fn encode_plain(input: &[f64]) -> Bytes {
 
         if xor != 0 {
             let meaningful = xor >> trailing;
-            for i in 0..(meaningful_bytes + 1) {
-                let value = (meaningful >> ((meaningful_bytes - i) * 8)) & 0xFF;
-                buf.put_u8(value as u8);
-            }
+            let meaningful_len = (meaningful_bytes + 1) as usize;
+            let meaningful_buf = meaningful.to_be_bytes();
+            buf.extend_from_slice(&meaningful_buf[8 - meaningful_len..]);
         }
 
         ringbuf[index % 128] = curr_bits;
@@ -98,7 +91,7 @@ pub fn decode(input: Vec<u8>, count: usize) -> Vec<f64> {
 }
 
 fn decode_plain(input: &[u8], count: usize) -> Vec<f64> {
-    let mut result: Vec<f64> = vec![];
+    let mut result: Vec<f64> = Vec::with_capacity(count);
 
     if count == 0 {
         return result;
