@@ -89,10 +89,8 @@ fn encode_plain(input: &[f64]) -> Bytes {
         for &curr in &input[1..] {
             let curr_bits = curr.to_bits();
             let key = (curr_bits & 0x3FFF) as usize;
-            let entry = entries[key];
-
-            let lookup_index = if entry.epoch == epoch {
-                entry.value
+            let lookup_index = if entries[key].epoch == epoch {
+                entries[key].value
             } else {
                 u32::MAX
             };
