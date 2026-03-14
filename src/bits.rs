@@ -37,6 +37,19 @@ impl Bitwrite {
             return;
         }
 
+        let free = 8 - self.bitcount;
+        if count <= free {
+            let mask = ((1u16 << count) - 1) as u8;
+            self.bitbuf |= ((value as u8) & mask) << (free - count);
+            self.bitcount += count;
+            if self.bitcount == 8 {
+                self.buf.put_u8(self.bitbuf);
+                self.bitcount = 0;
+                self.bitbuf = 0;
+            }
+            return;
+        }
+
         let mut remaining = count;
         while remaining > 0 {
             if self.bitcount == 0 && remaining >= 8 {
@@ -94,6 +107,20 @@ impl<'a> Bitread<'a> {
             bytes.copy_from_slice(&self.buf[self.bytep..self.bytep + 8]);
             self.bytep += 8;
             return u64::from_be_bytes(bytes);
+        }
+
+        let available = 8 - self.bitp;
+        if count <= available {
+            let byte = self.buf[self.bytep];
+            let shift = available - count;
+            let mask = ((1u16 << count) - 1) as u8;
+            let bits = ((byte >> shift) & mask) as u64;
+            self.bitp += count;
+            if self.bitp == 8 {
+                self.bytep += 1;
+                self.bitp = 0;
+            }
+            return bits;
         }
 
         let mut bits: u64 = 0;

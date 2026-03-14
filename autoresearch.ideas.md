@@ -1,0 +1,3 @@
+- Chimp128 encode: avoid clearing the 16,384-entry lookup table on every call via generation-stamped slots (`value`, `epoch`) or a compact touched-index reset list. This may reduce per-call fixed overhead, especially for short/medium inputs.
+- Chimp128-specific bitstream path: add dedicated encode/decode helpers for the exact bit-width set used by Chimp128 control/data fields (1, 3, 6, 7, and variable payloads) to reduce generic branching inside `put_u64_lowest_bits` / `read_u64_lowest_bits`.
+- Investigate SIMD-friendly or word-at-a-time decode for `read_u64_lowest_bits` in the unaligned case (carefully preserving bit-exact semantics), potentially via a cached 64-bit window in `Bitread`.
