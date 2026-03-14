@@ -112,7 +112,7 @@ impl<'a> Bitread<'a> {
         result
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn read_u64_lowest_bits(&mut self, count: u8) -> u64 {
         if self.bitp == 0 && count == 64 {
             let mut bytes = [0u8; 8];
