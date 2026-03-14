@@ -2,10 +2,23 @@
 #
 # SPDX-License-Identifier: ISC
 
+import pytest
 from floatbungler import patas
 from hypothesis import example, given
 from hypothesis import strategies as st
 from numpy.testing import assert_equal
+
+from test.vector_cases import TEST_VECTORS, assert_f64_bits_equal
+
+
+@pytest.mark.parametrize(
+    "vector", TEST_VECTORS, ids=[vector.name for vector in TEST_VECTORS]
+)
+def test_patas_vectors(vector):
+    encoded = patas.encode(vector.values)
+    assert encoded == vector.encoded_bytes("patas")
+    result = patas.decode(encoded, len(vector.values))
+    assert_f64_bits_equal(result, vector.values)
 
 
 @example([1.0, 2.0, 3.0] * 200)
