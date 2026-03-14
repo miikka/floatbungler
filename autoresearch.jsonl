@@ -1,1 +1,2 @@
 {"type":"config","name":"Chimp128 runtime optimization","metricName":"chimp128_runtime_us","metricUnit":"µs","bestDirection":"lower"}
+{"run":1,"commit":"94551f9","metric":962.9880742729885,"metrics":{},"status":"keep","description":"Baseline for chimp128 runtime using just bench-target; add autoresearch.md/autoresearch.sh/autoresearch.checks.sh infrastructure","timestamp":1773504019766,"segment":0}

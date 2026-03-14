@@ -45,15 +45,23 @@ fn encode_plain(input: &[f64]) -> Bytes {
 
         let lookup_index = lookup[(curr_bits & 0x3FFF) as usize];
         let best_index = if lookup_index != usize::MAX && index - lookup_index <= 128 {
-            lookup_index % 128
+            lookup_index & 127
         } else {
-            ringbuf
-                .iter()
-                .filter(|x| **x != u64::MAX)
-                .enumerate()
-                .max_by_key(|(_, x)| (**x).trailing_zeros() as u8)
-                .unwrap()
-                .0
+            let available = index.min(128);
+            let mut best_index = 0usize;
+            let mut best_trailing = ringbuf[0].trailing_zeros() as u8;
+
+            let mut i = 1;
+            while i < available {
+                let trailing = ringbuf[i].trailing_zeros() as u8;
+                if trailing > best_trailing {
+                    best_trailing = trailing;
+                    best_index = i;
+                }
+                i += 1;
+            }
+
+            best_index
         };
         let best_bits = ringbuf[best_index];
         let xor = curr_bits ^ best_bits;
@@ -89,7 +97,7 @@ fn encode_plain(input: &[f64]) -> Bytes {
             prev_leading = leading;
         }
 
-        ringbuf[index % 128] = curr_bits;
+        ringbuf[index & 127] = curr_bits;
         lookup[(curr_bits & 0x3FFF) as usize] = index;
         prev_bits = curr_bits;
         index += 1;
@@ -122,7 +130,7 @@ pub fn decode(input: &[u8], count: usize) -> Vec<f64> {
     for index in 1..count {
         if stream.read_bit() == 0 {
             let best_index = stream.read_u64_lowest_bits(7);
-            let rb_index = (128 + index - best_index as usize) % 128;
+            let rb_index = index.wrapping_sub(best_index as usize) & 127;
             let best_bits = ringbuf[rb_index];
             assert!(
                 best_bits != u64::MAX,
@@ -158,7 +166,7 @@ pub fn decode(input: &[u8], count: usize) -> Vec<f64> {
             prev_bits = curr_bits;
         }
 
-        ringbuf[index % 128] = prev_bits;
+        ringbuf[index & 127] = prev_bits;
         lookup[(prev_bits & 0x3FFF) as usize] = index;
     }
 
