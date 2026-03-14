@@ -26,7 +26,7 @@ fn encode_plain(input: &[f64]) -> Bytes {
 
     // We use the MAX values to signify that the slots has not been initialized
     let mut ringbuf: [u64; 128] = [u64::MAX; 128];
-    let mut lookup: [usize; 16384] = [usize::MAX; 16384];
+    let mut lookup: [u32; 16384] = [u32::MAX; 16384];
 
     let first = input[0];
 
@@ -44,8 +44,8 @@ fn encode_plain(input: &[f64]) -> Bytes {
         let curr_bits = curr.to_bits();
 
         let lookup_index = lookup[(curr_bits & 0x3FFF) as usize];
-        let best_index = if lookup_index != usize::MAX && index - lookup_index <= 128 {
-            lookup_index & 127
+        let best_index = if lookup_index != u32::MAX && index - lookup_index as usize <= 128 {
+            lookup_index as usize & 127
         } else {
             let available = index.min(128);
             let mut best_index = 0usize;
@@ -98,7 +98,7 @@ fn encode_plain(input: &[f64]) -> Bytes {
         }
 
         ringbuf[index & 127] = curr_bits;
-        lookup[(curr_bits & 0x3FFF) as usize] = index;
+        lookup[(curr_bits & 0x3FFF) as usize] = index as u32;
         prev_bits = curr_bits;
         index += 1;
     }
@@ -116,13 +116,11 @@ pub fn decode(input: &[u8], count: usize) -> Vec<f64> {
 
     let mut stream = Bitread::new(input);
     let mut ringbuf: [u64; 128] = [u64::MAX; 128];
-    let mut lookup: [usize; 16384] = [usize::MAX; 16384];
 
     let first = stream.read_f64();
     let first_bits = first.to_bits();
     result.push(first);
     ringbuf[0] = first_bits;
-    lookup[(first_bits & 0x3FFF) as usize] = 0;
 
     let mut prev_bits = first_bits;
     let mut prev_leading = bin_count_leading(first_bits);
@@ -167,7 +165,6 @@ pub fn decode(input: &[u8], count: usize) -> Vec<f64> {
         }
 
         ringbuf[index & 127] = prev_bits;
-        lookup[(prev_bits & 0x3FFF) as usize] = index;
     }
 
     result
