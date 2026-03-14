@@ -11,7 +11,7 @@ pub fn encode(input: Vec<f64>) -> Vec<u8> {
 }
 
 fn encode_plain(input: &[f64]) -> Bytes {
-    let mut buf = BytesMut::new();
+    let mut buf = BytesMut::with_capacity(8 + 10 * input.len());
 
     if input.is_empty() {
         return buf.into();
