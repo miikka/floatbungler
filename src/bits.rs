@@ -69,6 +69,12 @@ impl Bitwrite {
             remaining -= 32;
         }
 
+        while remaining >= 16 {
+            let half = ((value >> (remaining - 16)) & 0xFFFF) as u16;
+            self.buf.put_u16(half);
+            remaining -= 16;
+        }
+
         while remaining >= 8 {
             let byte = ((value >> (remaining - 8)) & 0xFF) as u8;
             self.buf.put_u8(byte);
