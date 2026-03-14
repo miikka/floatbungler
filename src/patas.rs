@@ -10,13 +10,6 @@ pub fn encode(input: Vec<f64>) -> Vec<u8> {
     encode_plain(&input).into()
 }
 
-fn diff128(a: u8, b: u8) -> u8 {
-    let a1 = a as i16;
-    let b1 = b as i16;
-    // Unlike in Python, % of a negative number stays negative
-    (((a1 - b1) + 128) % 128) as u8
-}
-
 fn encode_plain(input: &[f64]) -> Bytes {
     let mut buf = BytesMut::new();
 
@@ -62,7 +55,8 @@ fn encode_plain(input: &[f64]) -> Bytes {
             (trailing, meaningful_bytes - 1)
         };
 
-        let ref_index = diff128(((index - 1) % 128) as u8, best_index);
+        let index_mod_128: u8 = (index % 128) as u8;
+        let ref_index = index_mod_128.wrapping_sub(best_index + 1) % 128;
         debug_assert!(
             ref_index < 128,
             "ref_index must be between 0 and 127, got {} (index={}, best_index={})",
