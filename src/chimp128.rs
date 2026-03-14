@@ -7,7 +7,7 @@ use pyo3::prelude::*;
 
 use crate::{
     bits::{Bitread, Bitwrite},
-    chimp_utils::{bin_count_leading, bin_decode, bin_encode},
+    chimp_utils::{bin_count_leading, bin_decode, bin_leading_and_code},
 };
 
 #[pyfunction]
@@ -62,8 +62,8 @@ fn encode_plain(input: &[f64]) -> Bytes {
                 stream.put_bit(0);
             } else {
                 stream.put_bit(1);
-                let leading = bin_count_leading(xor);
-                stream.put_u64_lowest_bits(bin_encode(leading) as u64, 3);
+                let (leading, leading_code) = bin_leading_and_code(xor);
+                stream.put_u64_lowest_bits(leading_code as u64, 3);
                 let meaningful_count = 64 - leading - trailing;
                 stream.put_u64_lowest_bits(meaningful_count as u64, 6);
                 stream.put_u64_lowest_bits(xor >> trailing, meaningful_count);
@@ -72,12 +72,12 @@ fn encode_plain(input: &[f64]) -> Bytes {
         } else {
             stream.put_bit(1);
             let xor = curr_bits ^ prev_bits;
-            let leading = bin_count_leading(xor);
+            let (leading, leading_code) = bin_leading_and_code(xor);
             if prev_leading == leading {
                 stream.put_bit(0);
             } else {
                 stream.put_bit(1);
-                stream.put_u64_lowest_bits(bin_encode(leading) as u64, 3);
+                stream.put_u64_lowest_bits(leading_code as u64, 3);
             }
             stream.put_u64_lowest_bits(xor, 64 - leading);
             prev_leading = leading;

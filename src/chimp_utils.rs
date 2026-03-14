@@ -46,3 +46,17 @@ pub(crate) fn bin_decode(bin_index: u8) -> u8 {
         _ => unreachable!("invalid bin_index: {bin_index}"),
     }
 }
+
+#[inline]
+pub(crate) fn bin_leading_and_code(x: u64) -> (u8, u8) {
+    match x.leading_zeros() as u8 {
+        0..=7 => (0, 0),
+        8..=11 => (8, 1),
+        12..=15 => (12, 2),
+        16..=17 => (16, 3),
+        18..=19 => (18, 4),
+        20..=21 => (20, 5),
+        22..=23 => (22, 6),
+        _ => (24, 7),
+    }
+}

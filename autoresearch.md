@@ -35,3 +35,4 @@ Optimize the runtime of the Chimp128 algorithm implementation, measured via the 
 - **Discarded**: forced `#[inline(always)]` on bin helpers; regressed benchmark.
 - **Discarded**: changed decode `assert!` to `debug_assert!`; no improvement versus best.
 - **Kept (major)**: replaced encode fallback behavior on lookup miss with O(1) previous-value ring reference (`(index - 1) & 127`) instead of scanning ring buffer. Result: **759.72 µs**.
+- **Kept (major)**: optimized shared bit I/O (`src/bits.rs`) with byte-aligned fast paths in `put_u64_lowest_bits`/`read_u64_lowest_bits` plus inlining of single-bit ops. Result: **555.57 µs**.
