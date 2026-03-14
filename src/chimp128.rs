@@ -150,11 +150,11 @@ fn encode_plain(input: &[f64]) -> Bytes {
 
 #[pyfunction]
 pub fn decode(input: &[u8], count: usize) -> Vec<f64> {
-    let mut result = vec![];
-
     if count == 0 {
-        return result;
+        return Vec::new();
     }
+
+    let mut result = Vec::with_capacity(count);
 
     let mut stream = Bitread::new(input);
     let mut ringbuf: [u64; 128] = [u64::MAX; 128];

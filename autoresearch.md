@@ -38,6 +38,8 @@ Optimize the runtime of the Chimp128 algorithm implementation, measured via the 
 - **Kept (major)**: optimized shared bit I/O (`src/bits.rs`) with byte-aligned fast paths in `put_u64_lowest_bits`/`read_u64_lowest_bits` plus inlining of single-bit ops. Result: **555.57 µs**.
 - **Kept**: fused chimp leading-bin computations with `bin_leading_and_code(xor)` to avoid two helper calls in encode hot path. Result: **548.57 µs**.
 - **Kept (correctness + perf)**: fixed gorilla 5-bit leading-zero encoding overflow by capping encoded leading zeros to 31; this resolved a Hypothesis-found failing case and still improved target metric to **545.07 µs**.
-- **Kept**: added dedicated aligned `count == 64` bitstream fast paths (`put_u64` + bulk read) in `src/bits.rs`. Current best: **535.00 µs**.
+- **Kept**: added dedicated aligned `count == 64` bitstream fast paths (`put_u64` + bulk read) in `src/bits.rs`. Result: **535.00 µs**.
+- **Kept**: added single-byte-fit fast paths for `put_u64_lowest_bits` / `read_u64_lowest_bits` to accelerate frequent small control fields. Result: **527.31 µs**.
+- **Kept**: implemented thread-local generation-stamped lookup cache in chimp128 encode to avoid per-call initialization of a 16,384-entry lookup array. Current best: **526.95 µs**.
 - **Discarded**: several micro-tuning attempts regressed, including decode assert removal, decode preallocation, lookup key reuse, `inline(always)` forcing, while-loop rewrites, and broader `% 8 == 0` bit I/O fast paths.
 - **Checks-failed dead end**: changing `Bitwrite::into_bytes()` to skip final zero byte on byte-aligned endings breaks golden vector byte compatibility across codecs.
