@@ -32,6 +32,11 @@ impl Bitwrite {
 
     #[inline]
     pub fn put_u64_lowest_bits(&mut self, value: u64, count: u8) {
+        if self.bitcount == 0 && count == 64 {
+            self.buf.put_u64(value);
+            return;
+        }
+
         let mut remaining = count;
         while remaining > 0 {
             if self.bitcount == 0 && remaining >= 8 {
@@ -84,6 +89,13 @@ impl<'a> Bitread<'a> {
 
     #[inline]
     pub fn read_u64_lowest_bits(&mut self, count: u8) -> u64 {
+        if self.bitp == 0 && count == 64 {
+            let mut bytes = [0u8; 8];
+            bytes.copy_from_slice(&self.buf[self.bytep..self.bytep + 8]);
+            self.bytep += 8;
+            return u64::from_be_bytes(bytes);
+        }
+
         let mut bits: u64 = 0;
         let mut remaining = count;
         while remaining > 0 {

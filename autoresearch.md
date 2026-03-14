@@ -36,3 +36,5 @@ Optimize the runtime of the Chimp128 algorithm implementation, measured via the 
 - **Discarded**: changed decode `assert!` to `debug_assert!`; no improvement versus best.
 - **Kept (major)**: replaced encode fallback behavior on lookup miss with O(1) previous-value ring reference (`(index - 1) & 127`) instead of scanning ring buffer. Result: **759.72 µs**.
 - **Kept (major)**: optimized shared bit I/O (`src/bits.rs`) with byte-aligned fast paths in `put_u64_lowest_bits`/`read_u64_lowest_bits` plus inlining of single-bit ops. Result: **555.57 µs**.
+- **Kept**: fused chimp leading-bin computations with `bin_leading_and_code(xor)` to avoid two helper calls in encode hot path. Result: **548.57 µs**.
+- **Kept (correctness + perf)**: fixed gorilla 5-bit leading-zero encoding overflow by capping encoded leading zeros to 31; this resolved a Hypothesis-found failing case and still improved target metric to **545.07 µs**.
