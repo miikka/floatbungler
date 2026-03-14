@@ -18,7 +18,7 @@ pub fn encode(input: Vec<f64>) -> Vec<u8> {
 fn encode_plain(input: &[f64]) -> Bytes {
     let buf = BytesMut::new();
 
-    if input.len() == 0 {
+    if input.is_empty() {
         return buf.into();
     }
 
@@ -95,7 +95,7 @@ fn encode_plain(input: &[f64]) -> Bytes {
         index += 1;
     }
 
-    stream.to_bytes()
+    stream.into_bytes()
 }
 
 #[pyfunction]
@@ -146,11 +146,11 @@ pub fn decode(input: &[u8], count: usize) -> Vec<f64> {
             prev_bits = curr_bits;
         } else {
             let xor = if stream.read_bit() == 0 {
-                stream.read_u64_lowest_bits(64 - prev_leading as u8)
+                stream.read_u64_lowest_bits(64 - prev_leading)
             } else {
                 let leading = bin_decode(stream.read_u64_lowest_bits(3) as u8);
                 prev_leading = leading;
-                stream.read_u64_lowest_bits(64 - leading as u8)
+                stream.read_u64_lowest_bits(64 - leading)
             };
             let curr_bits = prev_bits ^ xor;
             let curr = f64::from_bits(curr_bits);

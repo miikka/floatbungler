@@ -21,7 +21,7 @@ fn diff128(a: u8, b: u8) -> u8 {
 fn encode_plain(input: &[f64]) -> Bytes {
     let mut buf = BytesMut::new();
 
-    if input.len() == 0 {
+    if input.is_empty() {
         return buf.into();
     }
 
@@ -85,7 +85,7 @@ fn encode_plain(input: &[f64]) -> Bytes {
             }
         }
 
-        ringbuf[(index % 128) as usize] = curr_bits;
+        ringbuf[index % 128] = curr_bits;
         lookup[(curr_bits & 0x3FFF) as usize] = (index % 128) as u8;
         index += 1;
     }

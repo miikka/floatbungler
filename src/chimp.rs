@@ -15,7 +15,7 @@ pub fn encode(input: Vec<f64>) -> Vec<u8> {
 fn encode_plain(input: &[f64]) -> Bytes {
     let buf = BytesMut::new();
 
-    if input.len() == 0 {
+    if input.is_empty() {
         return buf.into();
     }
 
@@ -69,7 +69,7 @@ fn encode_plain(input: &[f64]) -> Bytes {
         prev_bits = curr_bits;
     }
 
-    stream.to_bytes()
+    stream.into_bytes()
 }
 
 #[pyfunction]
@@ -110,7 +110,7 @@ fn decode_plain(input: &[u8], count: usize) -> Vec<f64> {
                 result.push(curr);
 
                 prev_bits = curr_bits;
-                prev_leading = leading as u8;
+                prev_leading = leading;
                 prev = curr;
             }
         } else {

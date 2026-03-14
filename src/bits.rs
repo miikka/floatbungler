@@ -20,7 +20,7 @@ impl Bitwrite {
     }
 
     pub fn put_bit(&mut self, value: u8) {
-        self.bitbuf = self.bitbuf | (value << (7 - self.bitcount));
+        self.bitbuf |= value << (7 - self.bitcount);
         self.bitcount += 1;
         if self.bitcount == 8 {
             self.buf.put_u8(self.bitbuf);
@@ -40,7 +40,7 @@ impl Bitwrite {
         self.put_u64_lowest_bits(value.to_bits(), 64);
     }
 
-    pub fn to_bytes(mut self) -> Bytes {
+    pub fn into_bytes(mut self) -> Bytes {
         self.buf.put_u8(self.bitbuf);
         self.buf.split().into()
     }
@@ -98,7 +98,7 @@ mod tests {
             stream.put_bit(bit);
         }
 
-        let bytes = stream.to_bytes();
+        let bytes = stream.into_bytes();
         let mut r = Bitread::new(&bytes);
 
         let mut read_bits: Vec<u8> = vec![];
@@ -117,7 +117,7 @@ mod tests {
 
         stream.put_f64(value);
 
-        let bytes = stream.to_bytes();
+        let bytes = stream.into_bytes();
 
         let mut r = Bitread::new(&bytes);
         assert_eq!(r.read_f64(), value)

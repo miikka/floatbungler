@@ -13,7 +13,7 @@ use pyo3::prelude::*;
 pub fn encode_plain(input: &[f64]) -> Bytes {
     let buf = BytesMut::with_capacity(input.len() * 8);
 
-    if input.len() == 0 {
+    if input.is_empty() {
         return buf.into();
     }
 
@@ -57,7 +57,7 @@ pub fn encode_plain(input: &[f64]) -> Bytes {
         }
     }
 
-    stream.to_bytes()
+    stream.into_bytes()
 }
 
 pub fn decode_plain(input: &[u8], count: usize) -> Vec<f64> {
@@ -119,5 +119,5 @@ pub fn encode(input: Vec<f64>) -> Vec<u8> {
 
 #[pyfunction]
 pub fn decode(input: Vec<u8>, count: usize) -> Vec<f64> {
-    decode_plain(&input, count).into()
+    decode_plain(&input, count)
 }
