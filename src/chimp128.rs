@@ -11,28 +11,17 @@ use crate::{
     chimp_utils::{bin_count_leading, bin_leading_and_code},
 };
 
-#[derive(Clone, Copy)]
-struct LookupEntry {
-    epoch: u32,
-    value: u32,
-}
-
-impl LookupEntry {
-    const EMPTY: Self = Self {
-        epoch: 0,
-        value: u32::MAX,
-    };
-}
-
 struct LookupState {
-    entries: [LookupEntry; 16384],
+    epochs: [u32; 16384],
+    values: [u32; 16384],
     current_epoch: u32,
 }
 
 impl LookupState {
     fn new() -> Self {
         Self {
-            entries: [LookupEntry::EMPTY; 16384],
+            epochs: [0; 16384],
+            values: [u32::MAX; 16384],
             current_epoch: 1,
         }
     }
@@ -41,7 +30,7 @@ impl LookupState {
         self.current_epoch = self.current_epoch.wrapping_add(1);
         if self.current_epoch == 0 {
             self.current_epoch = 1;
-            self.entries = [LookupEntry::EMPTY; 16384];
+            self.epochs = [0; 16384];
         }
         self.current_epoch
     }
@@ -79,18 +68,18 @@ fn encode_plain(input: &[f64]) -> Bytes {
     LOOKUP_STATE.with(|lookup_state| {
         let mut lookup_state = lookup_state.borrow_mut();
         let epoch = lookup_state.begin_epoch();
-        let entries = &mut lookup_state.entries;
 
         // 0x3FFF = 16383 = 16384 - 1 = 2^14 - 1;
         let first_key = (prev_bits & 0x3FFF) as usize;
-        entries[first_key] = LookupEntry { epoch, value: 0 };
+        lookup_state.epochs[first_key] = epoch;
+        lookup_state.values[first_key] = 0;
 
         let mut index = 1usize;
         for &curr in &input[1..] {
             let curr_bits = curr.to_bits();
             let key = (curr_bits & 0x3FFF) as usize;
-            let lookup_index = if entries[key].epoch == epoch {
-                entries[key].value
+            let lookup_index = if lookup_state.epochs[key] == epoch {
+                lookup_state.values[key]
             } else {
                 u32::MAX
             };
@@ -134,10 +123,8 @@ fn encode_plain(input: &[f64]) -> Bytes {
             }
 
             ringbuf[index & 127] = curr_bits;
-            entries[key] = LookupEntry {
-                epoch,
-                value: index as u32,
-            };
+            lookup_state.epochs[key] = epoch;
+            lookup_state.values[key] = index as u32;
             prev_bits = curr_bits;
             index += 1;
         }
