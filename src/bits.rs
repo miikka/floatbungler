@@ -147,6 +147,14 @@ impl<'a> Bitread<'a> {
             remaining -= n;
         }
 
+        while remaining >= 32 {
+            let mut bytes = [0u8; 4];
+            bytes.copy_from_slice(&self.buf[self.bytep..self.bytep + 4]);
+            bits = (bits << 32) | u32::from_be_bytes(bytes) as u64;
+            self.bytep += 4;
+            remaining -= 32;
+        }
+
         while remaining >= 8 {
             bits = (bits << 8) | self.buf[self.bytep] as u64;
             self.bytep += 1;
