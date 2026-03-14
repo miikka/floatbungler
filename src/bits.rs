@@ -19,6 +19,7 @@ impl Bitwrite {
         }
     }
 
+    #[inline]
     pub fn put_bit(&mut self, value: u8) {
         self.bitbuf |= value << (7 - self.bitcount);
         self.bitcount += 1;
@@ -29,10 +30,19 @@ impl Bitwrite {
         }
     }
 
+    #[inline]
     pub fn put_u64_lowest_bits(&mut self, value: u64, count: u8) {
-        for i in 0..count {
-            let bit = ((value >> (count - i - 1)) & 1) as u8;
-            self.put_bit(bit);
+        let mut remaining = count;
+        while remaining > 0 {
+            if self.bitcount == 0 && remaining >= 8 {
+                let byte = ((value >> (remaining - 8)) & 0xFF) as u8;
+                self.buf.put_u8(byte);
+                remaining -= 8;
+            } else {
+                let bit = ((value >> (remaining - 1)) & 1) as u8;
+                self.put_bit(bit);
+                remaining -= 1;
+            }
         }
     }
 
@@ -61,6 +71,7 @@ impl<'a> Bitread<'a> {
         }
     }
 
+    #[inline]
     pub fn read_bit(&mut self) -> u8 {
         let result = self.buf[self.bytep] >> (7 - self.bitp) & 1;
         self.bitp += 1;
@@ -71,10 +82,19 @@ impl<'a> Bitread<'a> {
         result
     }
 
+    #[inline]
     pub fn read_u64_lowest_bits(&mut self, count: u8) -> u64 {
         let mut bits: u64 = 0;
-        for _ in 0..count {
-            bits = (bits << 1) | (self.read_bit() as u64);
+        let mut remaining = count;
+        while remaining > 0 {
+            if self.bitp == 0 && remaining >= 8 {
+                bits = (bits << 8) | self.buf[self.bytep] as u64;
+                self.bytep += 1;
+                remaining -= 8;
+            } else {
+                bits = (bits << 1) | (self.read_bit() as u64);
+                remaining -= 1;
+            }
         }
         bits
     }
