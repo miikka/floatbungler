@@ -69,10 +69,10 @@ impl Bitwrite {
             remaining -= 8;
         }
 
-        while remaining > 0 {
-            let bit = ((value >> (remaining - 1)) & 1) as u8;
-            self.put_bit(bit);
-            remaining -= 1;
+        if remaining > 0 {
+            let mask = ((1u16 << remaining) - 1) as u8;
+            self.bitbuf = ((value as u8) & mask) << (8 - remaining);
+            self.bitcount = remaining;
         }
     }
 
@@ -153,9 +153,11 @@ impl<'a> Bitread<'a> {
             remaining -= 8;
         }
 
-        while remaining > 0 {
-            bits = (bits << 1) | (self.read_bit() as u64);
-            remaining -= 1;
+        if remaining > 0 {
+            let byte = self.buf[self.bytep];
+            let mask = ((1u16 << remaining) - 1) as u8;
+            bits = (bits << remaining) | (((byte >> (8 - remaining)) & mask) as u64);
+            self.bitp = remaining;
         }
         bits
     }
