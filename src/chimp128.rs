@@ -90,7 +90,7 @@ fn encode_plain(input: &[f64]) -> Bytes {
             };
             let best_bits = ringbuf[best_index];
             let xor = curr_bits ^ best_bits;
-            let trailing = xor.trailing_zeros() as u8;
+            let trailing = xor.trailing_zeros();
 
             // log2(128) + log2(64) = 13
             if trailing <= 13 {
@@ -115,6 +115,7 @@ fn encode_plain(input: &[f64]) -> Bytes {
                     stream.put_bit(1);
                     let (leading, leading_code) = bin_leading_and_code(xor);
                     stream.put_small::<3>(leading_code);
+                    let trailing = trailing as u8;
                     let meaningful_count = 64 - leading - trailing;
                     stream.put_small::<6>(meaningful_count);
                     stream.put_u64_lowest_bits(xor >> trailing, meaningful_count);

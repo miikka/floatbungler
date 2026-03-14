@@ -1,3 +1,3 @@
-- Implement a cached 64-bit sliding window in `Bitread` for unaligned `read_u64_lowest_bits` to reduce repeated slice indexing/copying while keeping exact bit semantics.
-- Investigate `Bitwrite`/`Bitread` internal buffering with a wider staging register (e.g., u64 bit reservoir) to batch emits/loads and reduce per-call shifting/masking overhead.
-- Profile-guided pass on chimp128 encode/decode branch behavior (especially `trailing > 13` path split) to see if branch hints or path reordering improve predictability without changing semantics.
+- Implement a cached 64-bit sliding window in `Bitread` for unaligned `read_u64_lowest_bits` to reduce repeated indexing/copying while preserving exact bit semantics.
+- Investigate a wider staging register (bit reservoir) design for `Bitwrite`/`Bitread` to batch bit operations and reduce per-call shift/mask overhead.
+- Revisit lookup cache access patterns in chimp128 encode with profile guidance (e.g., minimizing repeated indexed loads on `epochs[key]`/`values[key]` without reintroducing slower abstractions).
