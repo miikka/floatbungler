@@ -90,7 +90,6 @@ fn encode_plain(input: &[f64]) -> Bytes {
         }
 
         ringbuf[index % 128] = curr_bits;
-        lookup[(curr_bits & 0x3FFF) as usize] = index;
         prev_bits = curr_bits;
         index += 1;
     }
@@ -108,13 +107,11 @@ pub fn decode(input: &[u8], count: usize) -> Vec<f64> {
 
     let mut stream = Bitread::new(input);
     let mut ringbuf: [u64; 128] = [u64::MAX; 128];
-    let mut lookup: [usize; 16384] = [usize::MAX; 16384];
 
     let first = stream.read_f64();
     let first_bits = first.to_bits();
     result.push(first);
     ringbuf[0] = first_bits;
-    lookup[(first_bits & 0x3FFF) as usize] = 0;
 
     let mut prev_bits = first_bits;
     let mut prev_leading = bin_count_leading(first_bits);
@@ -159,7 +156,6 @@ pub fn decode(input: &[u8], count: usize) -> Vec<f64> {
         }
 
         ringbuf[index % 128] = prev_bits;
-        lookup[(prev_bits & 0x3FFF) as usize] = index;
     }
 
     result
