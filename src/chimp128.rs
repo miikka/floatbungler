@@ -8,7 +8,7 @@ use std::cell::RefCell;
 
 use crate::{
     bits::{Bitread, Bitwrite},
-    chimp_utils::{bin_count_leading, bin_decode, bin_leading_and_code},
+    chimp_utils::{bin_count_leading, bin_leading_and_code},
 };
 
 #[derive(Clone, Copy)]
@@ -181,7 +181,8 @@ pub fn decode(input: &[u8], count: usize) -> Vec<f64> {
             let curr_bits = if stream.read_bit() == 0 {
                 best_bits
             } else {
-                let leading = bin_decode(stream.read_u64_lowest_bits(3) as u8);
+                let leading_code = stream.read_u64_lowest_bits(3) as u8;
+                let leading = [0, 8, 12, 16, 18, 20, 22, 24][leading_code as usize];
                 let meaningful_count = stream.read_u64_lowest_bits(6);
                 let meaningful = stream.read_u64_lowest_bits(meaningful_count as u8);
                 let trailing = 64 - leading - meaningful_count as u8;
@@ -196,7 +197,8 @@ pub fn decode(input: &[u8], count: usize) -> Vec<f64> {
             let xor = if stream.read_bit() == 0 {
                 stream.read_u64_lowest_bits(64 - prev_leading)
             } else {
-                let leading = bin_decode(stream.read_u64_lowest_bits(3) as u8);
+                let leading_code = stream.read_u64_lowest_bits(3) as u8;
+                let leading = [0, 8, 12, 16, 18, 20, 22, 24][leading_code as usize];
                 prev_leading = leading;
                 stream.read_u64_lowest_bits(64 - leading)
             };
