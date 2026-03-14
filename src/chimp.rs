@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: ISC
 
-use crate::bit_utils::{bin_count_leading, bin_decode, bin_encode, count_trailing};
 use crate::bits::{Bitread, Bitwrite};
+use crate::chimp_utils::{bin_count_leading, bin_decode, bin_encode};
 use bytes::{Bytes, BytesMut};
 use pyo3::prelude::*;
 
@@ -29,7 +29,7 @@ fn encode_plain(input: &[f64]) -> Bytes {
         let curr_bits = curr.to_bits();
         let xor = prev_bits ^ curr_bits;
 
-        let trailing = count_trailing(xor);
+        let trailing = xor.trailing_zeros() as u8;
 
         if trailing > 6 {
             stream.put_bit(0);

@@ -6,8 +6,8 @@ use bytes::{Bytes, BytesMut};
 use pyo3::prelude::*;
 
 use crate::{
-    bit_utils::{bin_count_leading, bin_decode, bin_encode, count_trailing},
     bits::{Bitread, Bitwrite},
+    chimp_utils::{bin_count_leading, bin_decode, bin_encode},
 };
 
 #[pyfunction]
@@ -51,13 +51,13 @@ fn encode_plain(input: &[f64]) -> Bytes {
                 .iter()
                 .filter(|x| **x != u64::MAX)
                 .enumerate()
-                .max_by_key(|(_, x)| count_trailing(**x))
+                .max_by_key(|(_, x)| (**x).trailing_zeros() as u8)
                 .unwrap()
                 .0
         };
         let best_bits = ringbuf[best_index];
         let xor = curr_bits ^ best_bits;
-        let trailing = count_trailing(xor);
+        let trailing = xor.trailing_zeros() as u8;
 
         // log2(128) + log2(64) = 13
         if trailing > 13 {

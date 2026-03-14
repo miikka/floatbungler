@@ -2,27 +2,6 @@
 //
 // SPDX-License-Identifier: ISC
 
-/// Counts the trailing zeros in the binary representation of the given integer.
-pub(crate) fn count_trailing(x: u64) -> u8 {
-    if x == 0 {
-        return 64;
-    }
-
-    let mut x = x;
-    let mut count = 0;
-
-    while x > 0 {
-        if x & 1 == 1 {
-            break;
-        }
-
-        count += 1;
-        x >>= 1;
-    }
-
-    count
-}
-
 fn bin_count(count: u8) -> u8 {
     let bins = [0, 8, 12, 16, 18, 20, 22, 24];
     let mut prev = bins[0];

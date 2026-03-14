@@ -75,7 +75,6 @@ The Rust implementation is organized into modules:
   - Both support f64 and arbitrary-length u64 operations
 
 - **`bit_utils.rs`**: Utility functions for bit manipulation
-  - `count_trailing()`: Count trailing zeros
   - `bin_count()` / `bin_encode()` / `bin_decode()`: Bin-based encoding for leading zeros (bins: 0, 8, 12, 16, 18, 20, 22, 24)
 
 ### Python Interface (`python/floatbungler/`)

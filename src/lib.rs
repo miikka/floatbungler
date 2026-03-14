@@ -4,10 +4,10 @@
 
 use pyo3::prelude::*;
 
-mod bit_utils;
 mod bits;
 mod chimp;
 mod chimp128;
+mod chimp_utils;
 mod gorilla;
 mod patas;
 
