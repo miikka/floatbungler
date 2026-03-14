@@ -51,16 +51,23 @@ impl Bitwrite {
         }
 
         let mut remaining = count;
+
+        while self.bitcount != 0 {
+            let bit = ((value >> (remaining - 1)) & 1) as u8;
+            self.put_bit(bit);
+            remaining -= 1;
+        }
+
+        while remaining >= 8 {
+            let byte = ((value >> (remaining - 8)) & 0xFF) as u8;
+            self.buf.put_u8(byte);
+            remaining -= 8;
+        }
+
         while remaining > 0 {
-            if self.bitcount == 0 && remaining >= 8 {
-                let byte = ((value >> (remaining - 8)) & 0xFF) as u8;
-                self.buf.put_u8(byte);
-                remaining -= 8;
-            } else {
-                let bit = ((value >> (remaining - 1)) & 1) as u8;
-                self.put_bit(bit);
-                remaining -= 1;
-            }
+            let bit = ((value >> (remaining - 1)) & 1) as u8;
+            self.put_bit(bit);
+            remaining -= 1;
         }
     }
 
@@ -125,15 +132,21 @@ impl<'a> Bitread<'a> {
 
         let mut bits: u64 = 0;
         let mut remaining = count;
+
+        while self.bitp != 0 {
+            bits = (bits << 1) | (self.read_bit() as u64);
+            remaining -= 1;
+        }
+
+        while remaining >= 8 {
+            bits = (bits << 8) | self.buf[self.bytep] as u64;
+            self.bytep += 1;
+            remaining -= 8;
+        }
+
         while remaining > 0 {
-            if self.bitp == 0 && remaining >= 8 {
-                bits = (bits << 8) | self.buf[self.bytep] as u64;
-                self.bytep += 1;
-                remaining -= 8;
-            } else {
-                bits = (bits << 1) | (self.read_bit() as u64);
-                remaining -= 1;
-            }
+            bits = (bits << 1) | (self.read_bit() as u64);
+            remaining -= 1;
         }
         bits
     }

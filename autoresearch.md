@@ -40,6 +40,8 @@ Optimize the runtime of the Chimp128 algorithm implementation, measured via the 
 - **Kept (correctness + perf)**: fixed gorilla 5-bit leading-zero encoding overflow by capping encoded leading zeros to 31; this resolved a Hypothesis-found failing case and still improved target metric to **545.07 µs**.
 - **Kept**: added dedicated aligned `count == 64` bitstream fast paths (`put_u64` + bulk read) in `src/bits.rs`. Result: **535.00 µs**.
 - **Kept**: added single-byte-fit fast paths for `put_u64_lowest_bits` / `read_u64_lowest_bits` to accelerate frequent small control fields. Result: **527.31 µs**.
-- **Kept**: implemented thread-local generation-stamped lookup cache in chimp128 encode to avoid per-call initialization of a 16,384-entry lookup array. Current best: **526.95 µs**.
-- **Discarded**: several micro-tuning attempts regressed, including decode assert removal, decode preallocation, lookup key reuse, `inline(always)` forcing, while-loop rewrites, and broader `% 8 == 0` bit I/O fast paths.
+- **Kept**: implemented thread-local generation-stamped lookup cache in chimp128 encode to avoid per-call initialization of a 16,384-entry lookup array. Result: **526.95 µs**.
+- **Kept**: re-evaluated decode result preallocation (`Vec::with_capacity(count)` with early empty return) on the new baseline. Result: **526.53 µs**.
+- **Kept**: replaced chimp128 decode `bin_decode()` calls with direct 8-entry table indexing from the 3-bit code. Current best: **526.02 µs**.
+- **Discarded**: several micro-tuning attempts regressed, including decode assert removal, lookup key reuse, `inline(always)` forcing, while-loop rewrites, broader `% 8 == 0` bit I/O fast paths, wrapper methods for fixed-width bit fields, and UnsafeCell/packed lookup representations.
 - **Checks-failed dead end**: changing `Bitwrite::into_bytes()` to skip final zero byte on byte-aligned endings breaks golden vector byte compatibility across codecs.

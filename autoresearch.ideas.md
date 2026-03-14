@@ -1,3 +1,2 @@
 - Deepen Chimp128 bitstream specialization: dedicated methods for the most frequent control widths (1/3/6/7) that operate directly on the internal bit buffer (beyond the current single-byte fit fast path) to reduce per-call branching.
 - Investigate a cached 64-bit sliding window in `Bitread` for unaligned reads (`read_u64_lowest_bits`) to cut repeated byte-by-byte loops while preserving exact bit semantics.
-- Evaluate replacing `RefCell`-based thread-local lookup state with a lower-overhead interior mutability strategy (e.g., `UnsafeCell` + tight API) if profiling shows borrow bookkeeping in the hot path.
