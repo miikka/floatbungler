@@ -40,7 +40,7 @@ fn encode_plain(input: &[f64]) -> Bytes {
     lookup[(prev_bits & 0x3FFF) as usize] = 0;
 
     let mut index = 1;
-    for curr in input[1..].iter() {
+    for &curr in &input[1..] {
         let curr_bits = curr.to_bits();
 
         let lookup_index = lookup[(curr_bits & 0x3FFF) as usize];

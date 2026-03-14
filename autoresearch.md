@@ -31,3 +31,7 @@ Optimize the runtime of the Chimp128 algorithm implementation, measured via the 
 - Baseline initialized at **962.99 µs** (`just bench-target`, checks via `just test`).
 - **Kept**: replaced iterator-based fallback best-index search in `encode_plain()` with a bounded manual loop and changed modulo-128 ops to bitmasking (`& 127`). Result: **943.25 µs**.
 - **Kept**: changed encode lookup table type from `usize` to `u32` and removed unused decode lookup table maintenance. Result: **934.80 µs**.
+- **Kept**: replaced shared bin helper tiny-array iteration/lookups with direct match-based logic. Result: **917.91 µs**.
+- **Discarded**: forced `#[inline(always)]` on bin helpers; regressed benchmark.
+- **Discarded**: changed decode `assert!` to `debug_assert!`; no improvement versus best.
+- **Kept (major)**: replaced encode fallback behavior on lookup miss with O(1) previous-value ring reference (`(index - 1) & 127`) instead of scanning ring buffer. Result: **759.72 µs**.
