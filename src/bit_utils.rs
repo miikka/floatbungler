@@ -70,4 +70,3 @@ pub(crate) fn count_leading(x: u64) -> u8 {
 
     count
 }
-

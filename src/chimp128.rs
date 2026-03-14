@@ -10,7 +10,6 @@ use crate::{
     bits::{Bitread, Bitwrite},
 };
 
-
 #[pyfunction]
 pub fn encode(input: Vec<f64>) -> Vec<u8> {
     encode_plain(&input).into()

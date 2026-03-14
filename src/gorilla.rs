@@ -64,7 +64,7 @@ pub fn decode_plain(input: &[u8], count: usize) -> Vec<f64> {
     let mut result = vec![];
 
     if count == 0 {
-        return result
+        return result;
     }
 
     let mut stream = Bitread::new(input);

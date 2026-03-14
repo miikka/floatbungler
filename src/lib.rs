@@ -4,11 +4,11 @@
 
 use pyo3::prelude::*;
 
-mod bits;
 mod bit_utils;
-mod gorilla;
+mod bits;
 mod chimp;
 mod chimp128;
+mod gorilla;
 mod patas;
 
 /// Workaround to make `from floatbungler import <submodule>` work

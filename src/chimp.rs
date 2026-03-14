@@ -144,4 +144,3 @@ fn decode_plain(input: &[u8], count: usize) -> Vec<f64> {
 
     result
 }
-
