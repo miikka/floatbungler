@@ -47,7 +47,7 @@ wheels = [
 
 [[package]]
 name = "floatbungler"
-source = { virtual = "." }
+source = { editable = "." }
 
 [package.dev-dependencies]
 dev = [

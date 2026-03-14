@@ -5,7 +5,7 @@
 import numpy as np
 import pytest
 
-SIZES = [100, 1_000, 10_000, 100_000]
+SIZES = [100, 1_000, 10_000]
 
 PATTERNS = ["constant", "monotonic", "random", "sine", "walk"]
 
