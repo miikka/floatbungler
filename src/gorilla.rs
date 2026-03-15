@@ -31,7 +31,9 @@ pub fn encode_plain(input: &[f64]) -> Bytes {
             stream.put_bit(0);
         } else {
             stream.put_bit(1);
-            let leading = xor.leading_zeros() as u8;
+
+            // leading must be capped to 31 as we use 5 bits to store it
+            let leading = (xor.leading_zeros() as u8).min(31);
             let trailing = xor.trailing_zeros() as u8;
             let meaningful = xor >> trailing;
 

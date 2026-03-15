@@ -44,6 +44,11 @@ impl Bitwrite {
         self.buf.put_u8(self.bitbuf);
         self.buf.split().into()
     }
+
+    #[allow(dead_code)]
+    pub fn print_stats(&self) {
+        println!("write: byte {} bit {}", self.buf.len(), self.bitcount);
+    }
 }
 
 pub struct Bitread<'a> {
@@ -81,6 +86,11 @@ impl<'a> Bitread<'a> {
 
     pub fn read_f64(&mut self) -> f64 {
         f64::from_bits(self.read_u64_lowest_bits(64))
+    }
+
+    #[allow(dead_code)]
+    pub fn print_stats(&self) {
+        println!("read:  byte {} bit {}", self.bytep, self.bitp);
     }
 }
 
