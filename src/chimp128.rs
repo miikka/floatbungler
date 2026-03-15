@@ -90,6 +90,7 @@ fn encode_plain(input: &[f64]) -> Bytes {
         }
 
         ringbuf[index % 128] = curr_bits;
+        lookup[(curr_bits & 0x3FFF) as usize] = index;
         prev_bits = curr_bits;
         index += 1;
     }
