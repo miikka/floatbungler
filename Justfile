@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: ISC
 
+default: test
+
 check:
     cargo fmt --check
     cargo clippy
