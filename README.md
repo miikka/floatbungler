@@ -28,6 +28,8 @@ Should you use this in production?
 Probably no.
 Most likely what you want instead is [ALP](https://github.com/cwida/ALP).
 
+If you want to learn more about Gorilla, check out my blog post [_Compressing floating point data with Gorilla_](https://quanttype.net/p/compressing-with-gorilla/).
+
 ## Usage
 
 All algorithms follow the same API:
