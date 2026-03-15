@@ -28,3 +28,9 @@ def test_patas_encode_decode(data):
     data = list(data)
     result = patas.decode(patas.encode(data), len(data))
     assert_equal(result, data)
+
+
+@given(st.lists(st.floats(allow_nan=True), min_size=200, max_size=1000))
+def test_patas_encode_decode_large(data):
+    result = patas.decode(patas.encode(data), len(data))
+    assert_equal(result, data)

@@ -25,3 +25,9 @@ def test_gorilla_vectors(vector):
 def test_gorilla_encode_decode(data):
     result = gorilla.decode(gorilla.encode(data), len(data))
     assert_equal(result, data)
+
+
+@given(st.lists(st.floats(allow_nan=True), min_size=200, max_size=1000))
+def test_gorilla_encode_decode_large(data):
+    result = gorilla.decode(gorilla.encode(data), len(data))
+    assert_equal(result, data)

@@ -25,3 +25,9 @@ def test_chimp_vectors(vector):
 def test_chimp_encode_decode(data):
     result = chimp.decode(chimp.encode(data), len(data))
     assert_equal(result, data)
+
+
+@given(st.lists(st.floats(allow_nan=True), min_size=200, max_size=1000))
+def test_chimp_encode_decode_large(data):
+    result = chimp.decode(chimp.encode(data), len(data))
+    assert_equal(result, data)
