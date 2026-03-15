@@ -11,6 +11,7 @@ fix:
     cargo clippy --fix
 
 test:
+    cargo test
     uv run pytest
 
 bench:
