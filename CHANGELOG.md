@@ -8,6 +8,26 @@ SPDX-License-Identifier: ISC
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.2] - 2026-03-15
+
+### 🐛 Bug Fixes
+
+- Fix the xor case in patas
+- Make chimp128 work again
+- Fix gorilla long inputs test case
+
+### 🚜 Refactor
+
+- Pass decode input from Python to Rust as a slice
+- *(chimp128)* Remove unused lookup table from decode
+- Add tests for long inputs
+
+### ⚙️ Miscellaneous Tasks
+
+- Update dependencies
+- Add `cargo test` to `just test`
+- Add a script for releasing new versions
+
 ## [0.1.1] - 2026-03-14
 
 ### 🐛 Bug Fixes
@@ -34,6 +54,7 @@ All notable changes to this project will be documented in this file.
 - Add test vectors
 - Run cargo fmt
 - `just fix`
+- Release v0.1.1
 
 ## [0.1.0] - 2026-03-14
 
